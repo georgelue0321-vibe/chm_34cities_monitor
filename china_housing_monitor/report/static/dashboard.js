@@ -291,10 +291,14 @@ function renderCityDashboard(cityId) {
                 `;
             } else {
                 history.forEach(st => {
-                    const linkHtml = st.source_url ? `
+                    const isValidUrl = st.source_url && st.source_url.startsWith('http');
+                    const linkHtml = isValidUrl ? `
                         <a href="${st.source_url}" target="_blank" class="text-slate-400 hover:text-slate-300 font-medium transition-all flex items-center gap-1 hover:underline ml-auto flex-shrink-0">
                             信源公示 <i class="fas fa-external-link-alt text-[9px]"></i>
-                        </a>` : '';
+                        </a>` : (st.source_url ? `
+                        <span class="text-slate-500 text-[10px] ml-auto flex-shrink-0" title="${st.source_url}">
+                            <i class="fas fa-file-alt text-[9px] mr-0.5"></i>${st.source_url}
+                        </span>` : '');
 
                     const stageWeights = {
                         "政策表态": 10,
