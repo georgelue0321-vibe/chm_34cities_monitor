@@ -5,9 +5,11 @@ Usage:
     python -m china_housing_monitor              # Full pipeline: init DB, scrape, generate HTML
     python -m china_housing_monitor --no-scrape  # Skip scraping, just regenerate HTML from existing DB
     python -m china_housing_monitor --init-only  # Only initialize/seed the database
+    python -m china_housing_monitor --fetch-nbs  # Fetch latest NBS price index from East Money API
 """
 
 import argparse
+import sqlite3
 import sys
 
 from .config import DB_PATH, REPORT_PATH
@@ -20,6 +22,7 @@ def main():
     parser = argparse.ArgumentParser(description="China Housing Monitor - Property Bottom Signal Terminal")
     parser.add_argument("--no-scrape", action="store_true", help="Skip web scraping, regenerate HTML from existing DB")
     parser.add_argument("--init-only", action="store_true", help="Only initialize/seed the database")
+    parser.add_argument("--fetch-nbs", action="store_true", help="Fetch latest NBS price index from East Money API")
     parser.add_argument("--month", type=str, default=None, help="Target month in YYYY-MM format")
     args = parser.parse_args()
 
@@ -34,6 +37,17 @@ def main():
     if args.init_only:
         print("\nDatabase initialized. Exiting (--init-only).")
         return
+
+    # Step 1.5: Fetch NBS data from API (optional)
+    if args.fetch_nbs:
+        print("\n[1.5/3] Fetching NBS price index from East Money API...")
+        from .data.nbs_api import fetch_and_update
+        conn = sqlite3.connect(DB_PATH)
+        try:
+            inserted, updated, total = fetch_and_update(conn)
+            print(f"  NBS data update complete: {total} records, {inserted} new, {updated} updated")
+        finally:
+            conn.close()
 
     # Step 2: Scrape market data
     if not args.no_scrape:
