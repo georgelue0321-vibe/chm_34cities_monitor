@@ -1,0 +1,54 @@
+{
+  "source_types": {
+    "gov_official": {
+      "priority": 100,
+      "description": "政府官方网站",
+      "domains": [".gov.cn", "gov."],
+      "examples": ["fcj.shenyang.gov.cn", "www.shenyang.gov.cn"]
+    },
+    "gov_wechat": {
+      "priority": 90,
+      "description": "官方微信公众号",
+      "domains": ["weixin.qq.com"],
+      "verification": "需要验证是否为官方账号"
+    },
+    "state_media": {
+      "priority": 80,
+      "description": "国家媒体",
+      "domains": ["xinhuanet.com", "people.com.cn", "cctv.com", "china.com.cn"]
+    },
+    "local_media": {
+      "priority": 70,
+      "description": "地方媒体",
+      "domains": ["ifeng.com", "163.com", "sina.com", "sohu.com", "qq.com"]
+    },
+    "industry_media": {
+      "priority": 60,
+      "description": "行业媒体",
+      "domains": ["anjuke.com", "lianjia.com", "ke.com", "fang.com"]
+    },
+    "other": {
+      "priority": 50,
+      "description": "其他来源",
+      "domains": []
+    }
+  },
+  "fallback_strategy": {
+    "primary": "gov_official",
+    "secondary": "gov_wechat",
+    "tertiary": "state_media",
+    "fallback": "local_media"
+  },
+  "verification_rules": {
+    "gov_official": {
+      "must_verify": true,
+      "retry_count": 3,
+      "timeout": 10
+    },
+    "gov_wechat": {
+      "must_verify": true,
+      "retry_count": 2,
+      "timeout": 15
+    }
+  }
+}

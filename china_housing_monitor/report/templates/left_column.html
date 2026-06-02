@@ -1,0 +1,96 @@
+<!-- LEFT COLUMN: Temperature Board + Supporting Modules -->
+
+<!-- Row 1: National Temperature Board (full width) — Compact Layout -->
+<div class="lg:col-span-12 order-1 card-primary rounded-xl p-4 sm:p-5">
+    <div class="flex items-center justify-between mb-3">
+        <h3 class="text-slate-200 text-xs font-bold uppercase tracking-wider flex items-center gap-2">
+            <i class="fas fa-globe-asia text-blue-400"></i>
+            全国政策资金流速温度板
+        </h3>
+        <div class="tooltip-trigger" tabindex="0" aria-label="双口径数据治理说明">
+            <span class="w-5 h-5 rounded-full border border-slate-600 hover:border-slate-400 text-slate-400 hover:text-slate-200 flex items-center justify-center text-[9px] font-bold transition-colors">i</span>
+            <div class="tooltip-content w-72 bg-slate-800 border border-slate-600 text-slate-300 p-4 rounded-xl shadow-2xl text-[11px] leading-relaxed">
+                <p class="mb-2 text-white font-semibold text-xs">双口径数据治理说明：</p>
+                <p class="mb-2"><strong class="text-slate-200">① 官方已用口径</strong>：央行官方季度披露的保障房再贷款实际使用额度，2024-09-30 后冻结。</p>
+                <p><strong class="text-slate-200">② 项目落地口径</strong>：自下而上汇总各城市已落地收储项目总金额，独立展示不进入评分。</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Single-row compact: 2 gauges + 3 stats -->
+    <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
+        <!-- Official Balance -->
+        <div class="col-span-1 surface-inset border rounded-lg p-3 flex flex-col justify-center">
+            <div class="flex items-center gap-1.5 mb-1.5">
+                <span class="text-slate-300 text-[10px] font-semibold">官方已用</span>
+                <span class="px-1 py-0.5 rounded text-[7px] font-bold border bg-slate-800 text-slate-500 border-slate-700">冻结</span>
+            </div>
+            <div class="flex items-baseline gap-1 mb-1.5">
+                <span id="pbocBalanceStr" class="text-white text-base font-extrabold"></span>
+                <span class="text-slate-600 text-[9px]">/ 3000亿</span>
+            </div>
+            <div class="h-1.5 bg-slate-950 rounded-full overflow-hidden">
+                <div id="nationalProgressBar" class="h-full bg-indigo-500 rounded-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+            <span id="nationalPercentageStr" class="text-indigo-400 text-[9px] font-bold mt-1"></span>
+        </div>
+
+        <!-- Project Landed -->
+        <div class="col-span-1 surface-inset border rounded-lg p-3 flex flex-col justify-center">
+            <div class="flex items-center gap-1.5 mb-1.5">
+                <span class="text-slate-300 text-[10px] font-semibold">项目落地</span>
+                <span class="px-1 py-0.5 rounded text-[7px] font-bold border bg-emerald-950/50 text-emerald-500 border-emerald-800">反推</span>
+            </div>
+            <div class="flex items-baseline gap-1 mb-1.5">
+                <span id="pbocLandedStr" class="text-white text-base font-extrabold"></span>
+                <span class="text-slate-600 text-[9px]">/ 3000亿估</span>
+            </div>
+            <div class="h-1.5 bg-slate-950 rounded-full overflow-hidden">
+                <div id="landedProgressBar" class="h-full bg-emerald-500 rounded-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+            <span id="landedPercentageStr" class="text-emerald-400 text-[9px] font-bold mt-1"></span>
+        </div>
+
+        <!-- Stat: Quarter Increase -->
+        <div class="surface-inset border border-slate-800/60 rounded-lg p-3 flex flex-col justify-center">
+            <span class="text-slate-500 text-[9px] font-semibold uppercase tracking-wider">上季新增</span>
+            <span id="pbocQuarterIncreaseStr" class="text-slate-300 text-sm font-bold mt-1">-</span>
+            <span id="pbocStaleNote" class="text-slate-600 text-[8px] mt-0.5 hidden"></span>
+        </div>
+
+        <!-- Stat: Active Cities -->
+        <div class="surface-inset border border-slate-800/60 rounded-lg p-3 flex flex-col justify-center">
+            <span class="text-slate-500 text-[9px] font-semibold uppercase tracking-wider">收储城市(签约)</span>
+            <span id="pbocActiveCitiesStr" class="text-slate-200 text-sm font-bold mt-1"></span>
+            <div class="h-1.5 bg-slate-950 rounded-full overflow-hidden mt-1.5">
+                <div id="activeCitiesRatioBar" class="h-full bg-amber-500 rounded-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+            <span id="activeCitiesRatioStr" class="text-amber-400 text-[9px] font-bold mt-1"></span>
+        </div>
+
+        <!-- Stat: Units Acquired -->
+        <div class="surface-inset border border-slate-800/60 rounded-lg p-3 flex flex-col justify-center">
+            <div class="flex items-center gap-1">
+                <span class="text-slate-500 text-[9px] font-semibold uppercase tracking-wider">已签约套数</span>
+                <div class="tooltip-trigger" tabindex="0" aria-label="数据说明">
+                    <span class="w-3.5 h-3.5 rounded-full border border-slate-700 hover:border-slate-500 text-slate-500 hover:text-slate-300 flex items-center justify-center text-[7px] font-bold transition-colors">i</span>
+                    <div class="tooltip-content w-56 bg-slate-800 border border-slate-600 text-slate-300 p-3 rounded-lg shadow-2xl text-[10px] leading-relaxed">
+                        新闻通稿中明确提及具体套数的收储事件统计。部分城市仅公布金额或面积，未纳入此计数。
+                    </div>
+                </div>
+            </div>
+            <span id="pbocConversionRateStr" class="text-emerald-400 text-sm font-bold mt-1"></span>
+        </div>
+    </div>
+</div>
+
+<!-- Micro Storage Events -->
+<div class="lg:col-span-4 order-3 bg-slate-900 border border-slate-800/60 rounded-xl p-5">
+    <h3 class="text-slate-200 text-xs font-bold uppercase tracking-wider flex items-center gap-2 mb-5">
+        <i class="fas fa-coins text-amber-400"></i>
+        微观"收储防线"：各区国企收储执行阶段
+    </h3>
+    <div id="storageEventsTimeline" class="flex flex-col gap-3 max-h-[560px] overflow-y-auto scrollbar-none scroll-area">
+        <!-- Populated by JS -->
+    </div>
+</div>

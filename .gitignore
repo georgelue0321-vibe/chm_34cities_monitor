@@ -1,0 +1,59 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# SQLite
+*.sqlite
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
+
+# Generated output
+chm.html
+
+# Data files
+*.csv
+*.json
+!skills/**/*.json
+
+# OS
+.DS_Store
+
+# Config/local
+.opencode/
+.workbuddy/
+self-improving-*/
+opencode.json
+
+# Scratch & one-off scripts
+scratch/
+apply_rc5_changes.py
+
+# Old/legacy files
+china_housing_monitor.html
+china_housing_monitor.py
+chm_backup.html
+chm-screenshot.png
+
+# Project docs (keep AGENTS.md + README.md only)
+ARCHITECTURE.md
+ARCHITECTURE_INCREMENTAL_RC5.md
+AUDIT_STORAGE_EVENTS.md
+CHM_ARCHITECTURE_AND_AGENT_SPEC.md
+CHM_DATA_AUDIT_REPORT.md
+MONITOR_ARCHITECTURE.md
+PITFALLS.md
+PROJECT_SUMMARY.md
+TODO_v0.8.md
+
+# Scanner results (generated)
+skills/storage-event-scanner/results/
+
+# Other skills (not project-specific)
+skills/ui-ux-pro-max/
+skills/wechat-article-spider/
+skills/.skills_store_lock.json
+
+# Old scraper
+scraper/
