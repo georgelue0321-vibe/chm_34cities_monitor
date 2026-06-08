@@ -847,3 +847,54 @@ a:focus-visible {
         color: #64748b;
     }
 }
+
+/* === Feedback Drawer Light Theme overrides === */
+[data-theme="light"] #chm-feedback-trigger {
+    background-color: rgba(255, 255, 255, 0.95);
+    border-color: #cbd5e1;
+    color: #0f172a;
+}
+[data-theme="light"] #chm-feedback-trigger:hover {
+    background-color: #f1f5f9;
+}
+[data-theme="light"] #chm-feedback-trigger span {
+    color: #475569;
+}
+[data-theme="light"] #chm-feedback-modal {
+    background-color: rgba(255, 255, 255, 0.95);
+    border-left-color: #cbd5e1;
+}
+[data-theme="light"] #chm-feedback-modal button[onclick="closeChmFeedbackModal()"] {
+    background-color: rgba(241, 245, 249, 0.5);
+    border-color: #cbd5e1;
+    color: #475569;
+}
+[data-theme="light"] #chm-feedback-modal button[onclick="closeChmFeedbackModal()"]:hover {
+    background-color: #cbd5e1;
+    color: #0f172a;
+}
+[data-theme="light"] #chm-feedback-form label.flex {
+    background-color: rgba(241, 245, 249, 0.6);
+    border-color: #e2e8f0;
+    color: #475569;
+}
+[data-theme="light"] #chm-feedback-form label.flex:hover {
+    border-color: #cbd5e1;
+}
+[data-theme="light"] #chmContact,
+[data-theme="light"] #chmMessage {
+    background-color: #f8fafc;
+    border-color: #cbd5e1;
+    color: #0f172a;
+}
+[data-theme="light"] #chmContact::placeholder,
+[data-theme="light"] #chmMessage::placeholder {
+    color: #94a3b8;
+}
+[data-theme="light"] #chmCharCount {
+    color: #64748b;
+}
+[data-theme="light"] #chm-feedback-modal .bg-slate-950\/20 {
+    background-color: #f8fafc;
+    border-color: #cbd5e1;
+}

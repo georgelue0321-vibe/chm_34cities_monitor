@@ -463,6 +463,10 @@ def fetch_data_payload():
         if days_until_monday == 0:
             days_until_monday = 7
         next_update = (base_date + timedelta(days=days_until_monday)).strftime("%Y-%m-%d")
+        # If calculated next_update is in the past or today, roll forward by 7 days
+        if next_update and next_update <= last_updated:
+            next_date = datetime.strptime(next_update, "%Y-%m-%d")
+            next_update = (next_date + timedelta(days=7)).strftime("%Y-%m-%d")
     except Exception:
         next_update = ""
 
