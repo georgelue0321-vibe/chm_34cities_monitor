@@ -898,3 +898,19 @@ a:focus-visible {
     background-color: #f8fafc;
     border-color: #cbd5e1;
 }
+[data-theme="light"] #chm-feedback-modal .border-slate-800\/50 {
+    border-color: #cbd5e1;
+}
+[data-theme="light"] #chm-feedback-modal .text-slate-300 {
+    color: #1e293b;
+}
+[data-theme="light"] #chm-feedback-modal .bg-blue-950\/20 {
+    background-color: #eff6ff;
+    border-color: #bfdbfe;
+}
+[data-theme="light"] #chm-feedback-modal .text-blue-400 {
+    color: #2563eb;
+}
+[data-theme="light"] #chm-feedback-modal .text-slate-400 {
+    color: #334155;
+}
