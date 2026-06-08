@@ -8,6 +8,8 @@ __pycache__/
 *.sqlite-journal
 *.sqlite-wal
 *.sqlite-shm
+*.sqlite.storage_import_backup_*
+node_modules/
 
 # Generated output
 chm.html

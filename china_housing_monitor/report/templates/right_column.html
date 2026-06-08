@@ -1,82 +1,74 @@
 <!-- RIGHT COLUMN: City Dashboard + Diagnostics + Rankings + Charts -->
 
 <!-- Row 2: City Assessment Terminal (8 cols) — PRIMARY card -->
-<div class="lg:col-span-8 order-2 card-primary rounded-xl p-5 sm:p-6 flex flex-col justify-between w-full">
+<div id="city-radial-score-card" class="lg:col-span-8 order-2 card-primary rounded-xl p-5 sm:p-6 flex flex-col justify-between w-full">
     <div>
-        <!-- Top Row: City Name + Level + Status -->
         <div class="flex flex-wrap items-center gap-2.5 mb-4">
             <h2 id="cityNameHeader" class="text-white text-lg sm:text-xl font-extrabold tracking-wide"></h2>
-            <span id="cityLevelBadge" class="px-2 py-0.5 bg-slate-800 text-slate-300 border border-slate-700 text-[10px] font-medium rounded-md"></span>
-            <span id="cityStatusBadge" class="px-2.5 py-1 rounded-md text-[10px] font-bold"></span>
+            <span id="cityLevelBadge" class="px-2 py-0.5 bg-slate-800 text-slate-300 border border-slate-700 text-[12px] font-medium rounded-md"></span>
+            <span id="cityStatusBadge" class="px-2.5 py-1 rounded-md text-[12px] font-bold"></span>
         </div>
 
-        <!-- Second Row: Score Gauge + Parameters -->
         <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-5 items-center">
-            <!-- Score Gauge -->
             <div class="col-span-2 sm:col-span-1 relative aspect-square flex items-center justify-center group cursor-pointer max-w-[120px] mx-auto sm:mx-0">
                 <div id="cityRadialScoreChart" class="w-full h-full"></div>
                 <div class="absolute flex flex-col items-center justify-center pointer-events-none">
                     <span id="cityScoreStr" class="text-white text-xl font-extrabold"></span>
-                    <span class="text-slate-500 text-[8px] font-bold uppercase tracking-wider">底部评估</span>
+                    <span class="text-slate-500 text-[10px] font-bold uppercase tracking-wider">底部评估</span>
                 </div>
-                <!-- Tooltip (hover + focus) -->
                 <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2.5 bg-slate-800 border border-slate-600 rounded-xl opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-200 pointer-events-none z-10 whitespace-nowrap shadow-xl">
-                    <div id="tooltipScoreText" class="font-semibold text-white text-[11px]"></div>
-                    <div class="text-slate-400 text-[10px]">分数越高，越接近底部区间</div>
-                    <div class="text-slate-500 text-[9px] mt-0.5">综合考量价格、收储、全国资金三因子</div>
-                </div>
-            </div>
-            
-            <!-- Parameters (Cols 2-5) -->
-            <div class="col-span-1 relative surface-inset border border-slate-800/60 rounded-lg p-3 flex flex-col items-center justify-center text-center group cursor-pointer min-h-[90px]">
-                <span class="text-slate-500 text-[9px] font-semibold uppercase tracking-wider block">观察状态</span>
-                <span id="paramStatus" class="text-white text-xs sm:text-sm font-extrabold mt-1.5 block truncate max-w-full"></span>
-                <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2.5 bg-slate-800 border border-slate-600 rounded-xl opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-200 pointer-events-none z-10 whitespace-nowrap shadow-xl">
-                    <div id="tooltipStatusText" class="text-slate-200 text-[10px]"></div>
+                    <div id="tooltipScoreText" class="font-semibold text-white text-[13px]"></div>
+                    <div class="text-slate-400 text-[12px]">分数越高，越接近底部区间</div>
+                    <div class="text-slate-500 text-[11px] mt-0.5">综合考量价格、收储、全国资金三因子</div>
                 </div>
             </div>
             
             <div class="col-span-1 relative surface-inset border border-slate-800/60 rounded-lg p-3 flex flex-col items-center justify-center text-center group cursor-pointer min-h-[90px]">
-                <span class="text-slate-500 text-[9px] font-semibold uppercase tracking-wider block">风险等级</span>
-                <span id="paramRisk" class="text-rose-400 text-xs sm:text-sm font-extrabold mt-1.5 block"></span>
+                <span class="text-slate-500 text-[11px] font-semibold uppercase tracking-wider block">观察状态</span>
+                <span id="paramStatus" class="text-white text-sm font-extrabold mt-1.5 block truncate max-w-full"></span>
                 <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2.5 bg-slate-800 border border-slate-600 rounded-xl opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-200 pointer-events-none z-10 whitespace-nowrap shadow-xl">
-                    <div id="tooltipRiskText" class="text-slate-200 text-[10px]"></div>
+                    <div id="tooltipStatusText" class="text-slate-200 text-[12px]"></div>
+                </div>
+            </div>
+            
+            <div class="col-span-1 relative surface-inset border border-slate-800/60 rounded-lg p-3 flex flex-col items-center justify-center text-center group cursor-pointer min-h-[90px]">
+                <span class="text-slate-500 text-[11px] font-semibold uppercase tracking-wider block">风险等级</span>
+                <span id="paramRisk" class="text-rose-400 text-sm font-extrabold mt-1.5 block"></span>
+                <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2.5 bg-slate-800 border border-slate-600 rounded-xl opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-200 pointer-events-none z-10 whitespace-nowrap shadow-xl">
+                    <div id="tooltipRiskText" class="text-slate-200 text-[12px]"></div>
                 </div>
             </div>
 
             <div class="col-span-1 relative surface-inset border border-slate-800/60 rounded-lg p-3 flex flex-col items-center justify-center text-center group cursor-pointer min-h-[90px]">
-                <span class="text-slate-500 text-[9px] font-semibold uppercase tracking-wider block">信号强度</span>
-                <span id="paramStrength" class="text-white text-xs sm:text-sm font-extrabold mt-1.5 block"></span>
+                <span class="text-slate-500 text-[11px] font-semibold uppercase tracking-wider block">信号强度</span>
+                <span id="paramStrength" class="text-white text-sm font-extrabold mt-1.5 block"></span>
                 <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2.5 bg-slate-800 border border-slate-600 rounded-xl opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-200 pointer-events-none z-10 whitespace-nowrap shadow-xl">
-                    <div id="tooltipStrengthText" class="text-slate-200 text-[10px]"></div>
+                    <div id="tooltipStrengthText" class="text-slate-200 text-[12px]"></div>
                 </div>
             </div>
 
             <div class="col-span-2 sm:col-span-1 relative surface-inset border border-slate-800/60 rounded-lg p-3 flex flex-col items-center justify-center text-center group cursor-pointer min-h-[90px]">
-                <span class="text-slate-500 text-[9px] font-semibold uppercase tracking-wider block">数据可信度</span>
-                <span id="paramCredibility" class="text-slate-200 text-[10px] sm:text-[11px] font-semibold mt-1.5 block leading-normal"></span>
+                <span class="text-slate-500 text-[11px] font-semibold uppercase tracking-wider block">数据可信度</span>
+                <span id="paramCredibility" class="text-slate-200 text-[12px] sm:text-[13px] font-semibold mt-1.5 block leading-normal"></span>
                 <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2.5 bg-slate-800 border border-slate-600 rounded-xl opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-200 pointer-events-none z-10 whitespace-nowrap shadow-xl">
-                    <div id="tooltipCredibilityText" class="text-slate-200 text-[10px]"></div>
+                    <div id="tooltipCredibilityText" class="text-slate-200 text-[12px]"></div>
                 </div>
             </div>
         </div>
 
-        <!-- Third Row: Scoring Factors (compact, merged) -->
         <div class="surface-inset border border-slate-800/60 rounded-lg px-4 py-2.5 mb-3">
             <div class="space-y-2" id="factorsBreakdownContainer"></div>
         </div>
 
-        <!-- Fourth Row: Broker Consensus -->
         <div class="surface-inset border border-slate-800/60 rounded-lg p-4 mb-3">
-            <p class="text-slate-400 text-[9px] font-semibold uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+            <p class="text-slate-500 text-[11px] font-semibold uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
                 <i class="fas fa-brain text-indigo-400"></i>
                 本城投研共识结论
             </p>
-            <p id="cityConsensusStr" class="text-slate-300 text-[11px] leading-relaxed"></p>
+            <p id="cityConsensusStr" class="text-slate-300 text-[13px] leading-relaxed"></p>
         </div>
 
-        <!-- Drivers -->
-        <div class="surface-inset border border-slate-800/60 rounded-lg p-4 text-xs space-y-2">
+        <div class="surface-inset border border-slate-800/60 rounded-lg p-4 text-sm space-y-2">
             <div class="flex items-center gap-2">
                 <span class="text-emerald-400 font-semibold flex items-center gap-1.5 w-12 flex-shrink-0">
                     <i class="fas fa-arrow-trend-up"></i> 拉动
@@ -98,15 +90,14 @@
         </div>
     </div>
 
-    <!-- Disclaimer (always visible, compact) -->
     <div class="border-t border-slate-800/60 pt-2.5 mt-3">
-        <div class="flex items-center gap-2 text-[10px]">
+        <div class="flex items-center gap-2 text-[12px]">
             <span class="text-amber-400 font-semibold flex items-center gap-1.5 flex-shrink-0">
                 <i class="fas fa-exclamation-circle text-amber-500"></i>
                 BSS_LOW_DATA_V1 运行中
             </span>
             <span class="text-slate-500">—</span>
-            <span class="text-slate-500 text-[9px]">缺高频验证数据，仅价格+收储+资金三因子，建议交叉验证</span>
+            <span class="text-slate-500 text-[11px]">缺高频验证数据，仅价格+收储+资金三因子，建议交叉验证</span>
         </div>
     </div>
 </div>
@@ -114,103 +105,106 @@
 <!-- Row 2: Signal Diagnosis (4 cols) -->
 <div class="lg:col-span-4 order-2 bg-slate-900 border border-slate-800/60 rounded-xl p-5 flex flex-col justify-between w-full">
     <div>
-        <h3 class="text-slate-200 text-xs font-bold uppercase tracking-wider flex items-center gap-2 mb-4">
+        <h3 class="text-slate-200 text-sm font-bold uppercase tracking-wider flex items-center gap-2 mb-4">
             <i class="fas fa-diagnoses text-indigo-400"></i>
             底部信号诊断与验证意见
         </h3>
-
-        <div class="surface-inset border border-slate-800/60 rounded-lg p-3 mb-3 flex justify-between items-center text-xs">
+        <div class="surface-inset border border-slate-800/60 rounded-lg p-3 mb-3 flex justify-between items-center text-sm">
             <div class="flex items-center gap-1.5">
-                <span class="text-slate-400 text-[10px] font-semibold">观察榜排名:</span>
-                <span id="interpRank" class="text-indigo-400 text-[11px] font-extrabold"></span>
+                <span class="text-slate-400 text-[12px] font-semibold">观察榜排名:</span>
+                <span id="interpRank" class="text-indigo-400 text-[13px] font-extrabold"></span>
             </div>
             <div class="flex items-center gap-1.5">
-                <span class="text-slate-400 text-[10px] font-semibold">数据证据等级:</span>
-                <span id="interpGrade" class="px-1.5 py-0.5 rounded-md text-[9px] font-bold border"></span>
+                <span class="text-slate-400 text-[12px] font-semibold">数据证据等级:</span>
+                <span id="interpGrade" class="px-1.5 py-0.5 rounded-md text-[11px] font-bold border"></span>
             </div>
         </div>
-
         <div class="space-y-2.5">
             <div class="surface-inset border border-slate-800/60 rounded-lg p-3">
-                <span class="text-emerald-400 text-[9px] font-bold uppercase tracking-wider flex items-center gap-1.5 mb-2">
+                <span class="text-emerald-400 text-[11px] font-bold uppercase tracking-wider flex items-center gap-1.5 mb-2">
                     <i class="fas fa-check-circle text-emerald-500"></i> 积极支撑项
                 </span>
-                <div id="interpPositives" class="space-y-1.5 text-[11px] text-slate-300 leading-relaxed"></div>
+                <div id="interpPositives" class="space-y-1.5 text-[13px] text-slate-300 leading-relaxed"></div>
             </div>
-            
             <div class="surface-inset border border-slate-800/60 rounded-lg p-3">
-                <span class="text-rose-400 text-[9px] font-bold uppercase tracking-wider flex items-center gap-1.5 mb-2">
+                <span class="text-rose-400 text-[11px] font-bold uppercase tracking-wider flex items-center gap-1.5 mb-2">
                     <i class="fas fa-times-circle text-rose-500"></i> 关键制约项
                 </span>
-                <div id="interpNegatives" class="space-y-1.5 text-[11px] text-slate-300 leading-relaxed"></div>
+                <div id="interpNegatives" class="space-y-1.5 text-[13px] text-slate-300 leading-relaxed"></div>
             </div>
-
             <div class="surface-inset border border-slate-800/60 rounded-lg p-3">
-                <span class="text-blue-400 text-[9px] font-bold uppercase tracking-wider flex items-center gap-1.5 mb-2">
+                <span class="text-blue-400 text-[11px] font-bold uppercase tracking-wider flex items-center gap-1.5 mb-2">
                     <i class="fas fa-arrow-right text-blue-500"></i> 确认底部前瞻验证
                 </span>
-                <div id="interpNextSteps" class="space-y-1.5 text-[11px] text-slate-300 leading-relaxed"></div>
+                <div id="interpNextSteps" class="space-y-1.5 text-[13px] text-slate-300 leading-relaxed"></div>
             </div>
         </div>
     </div>
-
-    <div class="mt-4 border-t border-slate-800/60 pt-3 text-[10px] text-slate-500 leading-relaxed">
+    <div class="mt-4 border-t border-slate-800/60 pt-3 text-[12px] text-slate-500 leading-relaxed">
         建议从本地住建局网签量、贝壳去化周期等方面做进一步佐证。
     </div>
 </div>
 
 <!-- Row 3: Warnings + Rankings -->
-<!-- Warnings -->
 <div class="lg:col-span-4 order-3 bg-slate-900 border border-slate-800/60 rounded-xl p-5 flex flex-col">
-    <h3 class="text-slate-200 text-xs font-bold uppercase tracking-wider flex items-center gap-2 mb-4">
+    <h3 class="text-slate-200 text-sm font-bold uppercase tracking-wider flex items-center gap-2 mb-4">
         <i class="fas fa-exclamation-triangle text-amber-400"></i>
         底部信号实时评估
     </h3>
     <div id="warningsContainer" class="flex flex-col gap-2.5 overflow-y-auto max-h-[560px] scrollbar-none flex-grow scroll-area">
-        <!-- Populated by JS -->
     </div>
 </div>
 
 <!-- 34-City Rankings -->
 <div class="lg:col-span-4 order-3 bg-slate-900 border border-slate-800/60 rounded-xl p-5">
-    <h3 class="text-slate-200 text-xs font-bold uppercase tracking-wider flex items-center gap-2 mb-4">
+    <h3 class="text-slate-200 text-sm font-bold uppercase tracking-wider flex items-center gap-2 mb-4">
         <i class="fas fa-list-ol text-blue-400"></i>
         34城底部信号观察榜
     </h3>
-
     <div class="overflow-y-auto max-h-[560px] scrollbar-none flex flex-col gap-2 scroll-area" id="rankingsContainer">
-        <!-- Populated by JS -->
     </div>
 </div>
 
 <!-- Row 4: Official Price & Transaction Charts (full width, stacked) -->
-<div class="lg:col-span-12 order-4 bg-slate-900 border border-slate-800/60 rounded-xl p-5 sm:p-6 self-start">
-    <div class="flex justify-between items-center border-b border-slate-800/60 pb-4 mb-5">
-        <h3 class="text-slate-200 text-xs font-bold uppercase tracking-wider flex items-center gap-2">
-            <i class="fas fa-landmark text-blue-400"></i>
-            官方价格与网签交易底座
-        </h3>
-        <span class="text-slate-500 text-[10px] flex items-center gap-2">
-            <span class="flex items-center gap-1"><span class="w-3 h-0.5 bg-slate-400 inline-block"></span> 官方</span>
-            <span class="flex items-center gap-1"><span class="w-3 h-0.5 bg-slate-600 inline-block border-dashed border-t"></span> 估算</span>
-        </span>
-    </div>
-
-    <div class="space-y-4">
-        <div class="surface-inset border border-slate-800/60 rounded-lg p-4">
-            <h4 class="text-slate-300 text-[10px] font-semibold uppercase tracking-wider flex items-center gap-2 mb-3">
-                <span class="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_6px_rgba(59,130,246,0.4)]"></span>
-                国家统计局70城二手价格指数偏离度
-            </h4>
-            <div id="nbsIndexChart" class="h-52 w-full mt-1"></div>
+<div class="lg:col-span-12 order-4 bg-slate-900 border border-slate-800/60 rounded-xl p-4 sm:p-6 self-start">
+    <div class="border-b border-slate-800/60 pb-3 sm:pb-4 mb-4 sm:mb-5">
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-3">
+            <h3 class="text-slate-200 text-[13px] sm:text-sm font-bold uppercase tracking-wider flex items-center gap-2">
+                <i class="fas fa-landmark text-blue-400"></i>
+                官方价格与网签交易底座
+            </h3>
+            <div class="flex items-center gap-2 flex-wrap">
+                <span class="chart-legend-hint inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] sm:text-[11px] font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20 sm:hidden">
+                    <i class="fas fa-mobile-alt text-[9px]"></i>
+                    建议横屏查看图表
+                </span>
+                <span class="chart-legend-badge inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] sm:text-[11px] font-medium bg-slate-800/80 text-slate-400 border border-slate-700/60">
+                    <span class="w-2.5 h-[2px] rounded-full bg-slate-400"></span>
+                    官方数据
+                </span>
+                <span class="chart-legend-badge inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] sm:text-[11px] font-medium bg-slate-800/80 text-slate-500 border border-slate-700/60">
+                    <span class="w-2.5 h-[2px] rounded-full bg-slate-600 border-dashed border-t border-slate-500"></span>
+                    估算数据
+                </span>
+            </div>
         </div>
-        
-        <div class="surface-inset border border-slate-800/60 rounded-lg p-4">
-            <h4 class="text-slate-300 text-[10px] font-semibold uppercase tracking-wider flex items-center gap-2 mb-3">
-                <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.4)]"></span>
-                各地住建局二手住宅网签成交量
+    </div>
+    <div class="space-y-3 sm:space-y-4">
+        <div class="surface-inset border border-slate-800/60 rounded-lg p-3 sm:p-4">
+            <h4 class="text-slate-300 text-[11px] sm:text-[12px] font-semibold tracking-wider flex items-start sm:items-center gap-2 mb-2 sm:mb-3">
+                <span class="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_6px_rgba(59,130,246,0.4)] mt-0.5 sm:mt-0 shrink-0"></span>
+                <span class="flex-1 min-w-0">国家统计局70城二手价格指数偏离度</span>
+                <button onclick="resetChartRange('nbs')" class="nbs-reset-btn hidden px-1.5 py-0.5 text-[10px] rounded bg-slate-800 text-slate-400 hover:text-white shrink-0">重置</button>
             </h4>
-            <div id="transactionChart" class="h-52 w-full mt-1"></div>
+            <div id="nbsIndexChart" class="h-44 sm:h-52 w-full mt-1"></div>
+        </div>
+        <div class="surface-inset border border-slate-800/60 rounded-lg p-3 sm:p-4">
+            <h4 class="text-slate-300 text-[11px] sm:text-[12px] font-semibold tracking-wider flex items-start sm:items-center gap-2 mb-2 sm:mb-3">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.4)] mt-0.5 sm:mt-0 shrink-0"></span>
+                <span class="flex-1 min-w-0">各地住建局二手住宅网签成交量</span>
+                <button onclick="resetChartRange('tx')" class="tx-reset-btn hidden px-1.5 py-0.5 text-[10px] rounded bg-slate-800 text-slate-400 hover:text-white shrink-0">重置</button>
+            </h4>
+            <div id="transactionChart" class="h-44 sm:h-52 w-full mt-1"></div>
         </div>
     </div>
 </div>

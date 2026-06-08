@@ -37,7 +37,7 @@ class StageClassifier:
             "weight": 90,
             "description": "正式签署收购协议"
         },
-        "改造完成": {
+        "改造完成/配租配售": {
             "keywords": ["完成", "竣工", "交付", "配租", "配售", "入住", "投入使用"],
             "weight": 100,
             "description": "项目改造完成并投入使用"

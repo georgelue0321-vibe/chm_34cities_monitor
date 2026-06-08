@@ -36,6 +36,7 @@ def generate_html_report():
     js_dashboard = _read_file(STATIC_DIR, "dashboard.js")
     js_charts = _read_file(STATIC_DIR, "charts.js")
     js_map = _read_file(STATIC_DIR, "map.js")
+    js_onboarding = _read_file(STATIC_DIR, "onboarding.js")
     china_geo_json = _read_file(STATIC_DIR, "china.json")
 
     # Assemble the final HTML by replacing placeholders
@@ -52,6 +53,7 @@ def generate_html_report():
     html_content = html_content.replace("{{JS_DASHBOARD}}", js_dashboard)
     html_content = html_content.replace("{{JS_CHARTS}}", js_charts)
     html_content = html_content.replace("{{JS_MAP}}", js_map)
+    html_content = html_content.replace("{{JS_ONBOARDING}}", js_onboarding)
 
     try:
         with open(REPORT_PATH, "w", encoding="utf-8") as f:

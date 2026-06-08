@@ -1,158 +1,322 @@
 ---
 name: storage-event-scanner
-version: 2.0.0
-description: 收储事件智能扫描器 - 搜索、过滤、验证、入库。Use when scanning for government housing acquisition events for a specific city or all cities.
+version: 3.0.0
+description: CHM 项目专用收储事件扫描器。Use when running weekly incremental scans, reviewing, deduplicating, or importing government housing acquisition events into China Housing Monitor storage_execution_events.
 ---
 
-# Storage Event Scanner v2.0
+# Storage Event Scanner v3.0
 
-收储事件智能扫描器 — 搜索政府收储公告，经 agent 验证后入库。
+CHM 项目专用收储事件入口，用于寻找并审核"收购已建成/存量商品房用作保障性住房"的公开事件。目标不是多抓，而是保护 `storage_execution_events` 的数据质量。
 
-## 核心原则
+## Project Contract
 
-**宁缺毋滥**。每条入库事件必须满足：
-1. 来自 gov.cn 或 mp.weixin.qq.com 等权威来源
-2. 城市标签与文章内容一致
-3. 与已有事件不重复
-4. Agent 人工确认有效
+- 项目根目录：`/Users/george/Documents/CHM`
+- 目标库：`china_monitor_db.sqlite`
+- 目标表：`storage_execution_events`
+- 质量日志：`data_quality_log`
+- 城市 ID 唯一来源：`china_housing_monitor.config.CORE_CITIES`
+- 事件哈希唯一算法：`china_housing_monitor.config.compute_event_hash(city_id, event_date, event_stage, title)`
+- 不使用 pip 依赖；保持 Python 标准库
 
-## 工作流程
+## Weekly Mode (v3.0 推荐流程)
+
+当用户说"跑本周收储扫描"时执行每周增量扫描。
+
+### 核心原则
+
+**手动浏览器搜索优于自动化脚本。** v2.x 的自动化 scanner.py 效果不佳（容易搜到全国综述文章而非城市具体事件），v3.0 推荐使用 `browser-use` CLI 手动逐城搜索。
+
+### 流程概览
 
 ```
-┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│  1. 搜索     │ ──→ │  2. 过滤     │ ──→ │  3. 解析     │
-│  Baidu/Sogou │     │  黑名单+白名单│     │  URL重定向   │
-└─────────────┘     └─────────────┘     └─────────────┘
-                                              │
-┌─────────────┐     ┌─────────────┐           ▼
-│  6. 入库     │ ←── │  5. Agent   │ ←── ┌─────────────┐
-│  写入SQLite  │     │  逐条确认    │     │  4. 输出候选  │
-└─────────────┘     └─────────────┘     │  JSON待审    │
-                                        └─────────────┘
+1. 准备阶段
+   ├── 确定扫描日期（通常为周一）
+   ├── 创建 results/weekly/YYYY-MM-DD/ 目录
+   └── 加载已有 source_url 去重
+
+2. 逐城搜索（34城）
+   ├── 使用 browser-use CLI 搜索百度
+   ├── 搜索关键词："{城市名} 收购存量商品房 保障房 以旧换新 {年份}"
+   ├── 检查搜索结果标题和摘要
+   ├── 打开候选文章验证来源和内容
+   └── 记录有效事件到 reviewed.json
+
+3. 审核导入
+   ├── 运行 dry-run 测试
+   ├── 确认无误后 --commit 导入
+   └── 重新生成 HTML 页面
 ```
 
-### Step 1: 搜索 (scanner.py)
+### 详细步骤
+
+#### 1. 准备阶段
 
 ```bash
-python3 skills/storage-event-scanner/scripts/scanner.py --city <city_id>
+# 创建本周输出目录
+mkdir -p skills/storage-event-scanner/results/weekly/YYYY-MM-DD
+
+# 查看已有事件（避免重复）
+sqlite3 china_monitor_db.sqlite "SELECT city_id, source_url FROM storage_execution_events;"
 ```
 
-**双引擎搜索**：
-- **百度**：通用网页搜索，支持 `site:gov.cn`
-- **搜狗微信搜索**：专门搜索微信公众号文章，能找到政府公众号公告（百度搜不到的）
+#### 2. 逐城搜索
 
-搜索关键词：`{城市名} 收购存量商品房 保障房`
-排除关键词：`以旧换新`, `土地收储`, `城中村`, `租赁`, `房价`
-每城市最多 ~20 条结果（百度 10 + 搜狗 10）
+**搜索命令模板：**
 
-### Step 2: 过滤 (scanner.py)
+```bash
+# 打开百度搜索
+browser-use open "https://www.baidu.com/s?wd={城市名} 收购存量商品房 保障房 以旧换新 {年份}" 2>&1
 
-**来源白名单**（仅接受以下来源）：
-- `*.gov.cn` — 政府官网
-- `mp.weixin.qq.com` — 微信公众号（需验证为官方号）
-- `xinhuanet.com`, `people.com.cn` — 国家媒体
+# 等待页面加载（5秒）
+sleep 5
 
-**标题黑名单**（自动排除）：
-- 包含：`以旧换新`, `土地收储`, `城中村改造`, `房价`, `涨跌`, `预测`, `分析`
-- 包含：`自媒体`, `观点`, `评论`, `解读`, `盘点`, `汇总`
-- 包含其他城市名（如搜索上海时出现"广州"）
+# 提取搜索结果
+browser-use eval "JSON.stringify(Array.from(document.querySelectorAll('#content_left .c-container')).slice(0,6).map(el => {const t = el.querySelector('h3 a'); const a = el.querySelector('.c-abstract'); return {title: t ? t.innerText.trim().substring(0,100) : '', url: t ? t.href : '', abstract: a ? a.innerText.trim().substring(0,200) : ''}}).filter(x => x.title))" 2>&1
+```
 
-### Step 3: 解析 URL (scanner.py)
+**验证文章命令模板：**
 
-- `baidu.com/link` → `curl` 测试实际跳转目的地
-- `weixin.sogou.com/link` → `curl` 测试实际跳转目的地
-- 如果目的地不是白名单来源，丢弃
-- 存储最终 URL（非重定向 URL）
+```bash
+# 打开候选文章
+browser-use open "{文章URL}" 2>&1
 
-### Step 4: 输出候选 (scanner.py)
+# 等待页面加载（3秒）
+sleep 3
 
-输出 JSON 文件到 `results/{city_id}_candidates.json`，格式：
+# 获取页面标题和URL
+browser-use eval "document.title + ' | ' + window.location.href" 2>&1
+
+# 获取页面内容（前800字）
+browser-use eval "document.body.innerText.substring(0, 800)" 2>&1
+```
+
+**搜索关键词优化：**
+
+| 城市类型 | 推荐关键词 |
+|---------|-----------|
+| 一线城市 | `{城市名} 收购存量商品房 保障房 以旧换新 {年份}` |
+| 二线城市 | `{城市名} 安居 收购 存量商品房 保障房 {年份}5月 {年份}6月` |
+| 三线城市 | `{城市名} 收购存量商品房 保障房 以旧换新 {年份}` |
+
+**搜索结果筛选标准：**
+
+- ✅ **有效标题**：包含具体城市名 + 收购/征集/以旧换新 + 保障房/保租房
+- ❌ **无效标题**：全国综述、市场评论、房价预测、土地收储、城中村统租
+
+**来源验证优先级：**
+
+| 优先级 | 来源类型 | URL特征 | 可靠性 |
+|--------|---------|---------|--------|
+| 100 | 政府官网 | `*.gov.cn` | 最高 |
+| 90 | 政府/国企官方微信 | `mp.weixin.qq.com` | 高 |
+| 80 | 央媒 | `people.com.cn`, `xinhuanet.com`, `cctv.com` | 高 |
+| 70 | 地方官媒 | 各省市级媒体 | 中 |
+| ❌ | 普通自媒体 | `baijiahao.baidu.com`, `thepaper.cn` | 不可用 |
+
+**文章内容验证要点：**
+
+1. **页面可访问**：URL稳定，非跳转链接
+2. **来源可信**：发布机构为政府、国企、央媒
+3. **内容明确**：正文明确指向"收购存量商品房用作保障性住房"
+4. **城市匹配**：正文城市与搜索城市一致
+5. **日期可信**：有明确发布日期或事件日期
+
+#### 3. 审核导入
+
+**reviewed.json 格式：**
+
 ```json
 [
   {
-    "title": "标题",
-    "url": "最终URL",
-    "abstract": "摘要",
+    "city_id": "sh",
+    "city_name": "上海",
+    "title": "上海房管局确认中心城区收购小户型二手房用作保租房",
+    "event_date": "2026-05-07",
+    "event_stage": "政策表态",
+    "source_url": "https://fgj.sh.gov.cn/tpxw/20260507/adba080043d84d74b90ee27bedf23ad1.html",
     "source_type": "gov_official",
-    "suggested_stage": "签约收购",
-    "suggested_date": "2026-04-01",
-    "city_match": true,
-    "needs_verification": true
+    "source_reliability": 95,
+    "details": "上海市房管局局长高世昀在《2026上海民生访谈》中确认，今年上海在保租房筹措方面有了创新举措——在中心城区收购小户型二手房用作保租房。",
+    "buyer_entity": "上海市各区国企",
+    "approved": true,
+    "review": {
+      "status": "approved",
+      "review_note": "上海市房屋管理局官网（fgj.sh.gov.cn）2026-05-07发布。"
+    },
+    "needs_verification": false,
+    "verification_notes": "已通过官方来源验证。"
   }
 ]
 ```
 
-### Step 5: Agent 验证
-
-**Agent 必须逐条确认**：
-1. 用 `webfetch` 或 `browser-use` 打开 URL，确认内容可访问
-2. 确认文章确实关于「收购存量商品房用作保障房」
-3. 确认城市标签正确（文章中的城市 = 搜索城市）
-4. 确认与已有事件不重复（查询 DB 比较标题+日期）
-5. 确认阶段分类正确（政策表态/房源征集/签约收购等）
-6. 确认日期可提取
-
-**Agent 判定标准**：
-- ✅ **入库**：gov.cn 来源 + 内容相关 + 城市正确 + 不重复
-- ❌ **丢弃**：内容无关 / 城市错误 / 重复 / 来源不可靠
-- ⚠️ **待定**：内容相关但来源不够权威（如地方媒体）
-
-### Step 6: 入库
-
-Agent 确认后，手动执行 SQL 插入：
-```sql
-INSERT INTO storage_execution_events 
-(city_id, event_date, event_stage, title, source_url, source_reliability, 
- data_status, confidence_score, is_score_eligible, collected_at, event_hash)
-VALUES (?, ?, ?, ?, ?, ?, 'official', ?, 1, datetime('now'), ?);
-```
-
-## 使用方法
+**导入命令：**
 
 ```bash
-# 扫描单个城市（输出候选 JSON，不自动入库）
-python3 skills/storage-event-scanner/scripts/scanner.py --city bj
+# Dry-run 测试
+python3 skills/storage-event-scanner/scripts/db_importer.py skills/storage-event-scanner/results/weekly/YYYY-MM-DD/reviewed.json
 
-# 扫描所有城市
-python3 skills/storage-event-scanner/scripts/scanner.py --all
+# 确认无误后正式导入
+python3 skills/storage-event-scanner/scripts/db_importer.py skills/storage-event-scanner/results/weekly/YYYY-MM-DD/reviewed.json --commit
 
-# 查看候选结果
-cat skills/storage-event-scanner/results/bj_candidates.json
+# 重新生成 HTML 页面
+python3 -m china_housing_monitor --no-scrape
 ```
 
-**扫描完成后**：告诉 agent "验证 [城市] 的候选事件"，agent 会逐条检查并入库。
+### 34城搜索清单
 
-## 事件阶段
+**一线城市（4城）：**
+- bj (北京), sh (上海), sz (深圳), gz (广州)
 
-| 阶段 | 权重 | 触发关键词 |
-|------|------|-----------|
-| 政策表态 | 10 | 方案、通知、意见、政策、推进 |
-| 房源征集 | 25 | 征集、公告、招标公告 |
-| 正式招标 | 45 | 招标、比选、采购 |
-| 成交公示 | 70 | 中标、成交、公示 |
-| 签约收购 | 90 | 签约、签署、协议、落地 |
-| 改造完成 | 100 | 竣工、交付、配租、配售 |
+**新一线城市（11城）：**
+- cd (成都), cq (重庆), hz (杭州), wh (武汉), xa (西安)
+- nj (南京), tj (天津), cs (长沙), hf (合肥), zz (郑州), xm (厦门)
 
-## 信息源优先级
+**二线城市（11城）：**
+- qd (青岛), nb (宁波), fz (福州), sy (沈阳), jn (济南)
+- sjz (石家庄), ty (太原), hhht (呼和浩特), cc (长春), heb (哈尔滨), nc (南昌)
 
-| 优先级 | 来源 | URL 特征 |
-|--------|------|----------|
-| 100 | 政府官网 | *.gov.cn |
-| 95 | 政府微信 | mp.weixin.qq.com (官方号) |
-| 80 | 国家媒体 | xinhuanet.com, people.com.cn |
-| 60 | 地方媒体 | 仅在无更优来源时接受 |
+**三线城市（8城）：**
+- nn (南宁), hk (海口), gy (贵阳), km (昆明)
+- lz (兰州), xn (西宁), yc (银川), wlmq (乌鲁木齐)
 
-## 依赖
+### 常见问题
 
-- Python 3.8+
-- browser-use CLI（已连接 Chrome）
-- sqlite3
+**Q: 搜索结果都是全国综述文章怎么办？**
+A: 添加 `site:gov.cn` 限定政府网站，或使用更具体的关键词如 `"{城市名} 安居 集团 收购"`。
 
-## 注意事项
+**Q: 找到文章但来源是百度百家号怎么办？**
+A: 百度百家号（baijiahao.baidu.com）不可用，需要寻找其他来源或跳过该事件。
 
-- 需要连接 Chrome 浏览器（`browser-use connect`）
-- 每城市扫描约 2-5 分钟
-- **不会自动入库** — 输出候选 JSON，等 agent 验证后手动入库
-- **搜狗验证码**（两层处理）：
-  1. **搜索页验证码**：搜狗搜索页弹验证码时，脚本暂停，在 Chrome 中手动完成验证后自动继续
-  2. **链接重定向验证码**：搜狗 `weixin.sogou.com/link` 重定向到 antispider 时，脚本会在 Chrome 中打开该链接，等你解验证码后获取真实 URL
+**Q: 文章没有明确日期怎么办？**
+A: 只能通过多个可信来源交叉比对后取最早可信发布日期，并写入 `methodology_note`。
+
+**Q: 同一事件有多个来源怎么办？**
+A: 只保留一条 DB 记录：`source_url` 使用最权威来源，其他来源写入 `methodology_note`。
+
+## Stage And Scoring
+
+有效阶段：
+
+- `政策表态`：入库但 `is_score_eligible=0`，不参与 CHM 评分。
+- `房源征集`：入库并可评分。
+- `正式招标`：入库并可评分。
+- `成交公示`：入库并可评分。
+- `签约收购`：入库并可评分。
+- `改造完成/配租配售`：入库并可评分。
+
+至少到 `房源征集` 才算有效收储动作。`政策表态` 常用于提振楼市预期，只作为过程信息记录。
+
+## Source Priority
+
+| Priority | Source | Rule |
+|---:|---|---|
+| 100 | 政府官网 | `*.gov.cn`，最高优先级 |
+| 90 | 政府/国企官方微信 | `mp.weixin.qq.com`，需确认账号官方属性；与地方政府官网同级置信 |
+| 80 | 央媒 | 可评分，但先继续找政府源；找不到政府源时使用 |
+| 70 | 地方官媒 | 可评分但置信度低于政府源；找不到政府源时使用 |
+| 拒绝 | 普通自媒体/中介/市场号 | 不入库，不评分 |
+
+同一事件同一阶段有多个来源时，只保留一条 DB 记录：`source_url` 使用最权威来源，其他来源写入 `methodology_note`。如果阶段不同，分开入库。
+
+## Candidate Review
+
+逐条打开 `final_url`，不要只看搜索摘要。审核时必须确认：
+
+- 页面可访问，且最终 URL 稳定。
+- 发布机构是否为政府官网、政府/国企官方微信、央媒或地方官媒。
+- 正文是否明确是"收购存量商品房用作保障性住房"，不是土地收储、以旧换新、城中村统租、市场评论。
+- 正文城市是否等于 `city_id`。
+- 事件日期来自正文、页面发布日期或可信来源交叉比对，不来自搜索摘要猜测。
+- 阶段是否正确。
+- 同城、同日期、同阶段、同标题或同 URL 是否已在 `storage_execution_events`。
+
+通过项设置：
+
+```json
+{
+  "approved": true,
+  "review": {
+    "status": "approved",
+    "review_note": "正文确认，政府官网稳定 URL，未发现重复"
+  }
+}
+```
+
+不通过项保留但标记：
+
+```json
+{
+  "approved": false,
+  "review": {
+    "status": "rejected",
+    "reject_reason": "土地收储，不是收购商品房用作保障房"
+  }
+}
+```
+
+## Import Flow
+
+默认只做 dry-run，不写 DB：
+
+```bash
+cd /Users/george/Documents/CHM
+python3 skills/storage-event-scanner/scripts/db_importer.py skills/storage-event-scanner/results/weekly/YYYY-MM-DD/reviewed.json
+```
+
+确认 dry-run 无误后再写入：
+
+```bash
+cd /Users/george/Documents/CHM
+python3 skills/storage-event-scanner/scripts/db_importer.py skills/storage-event-scanner/results/weekly/YYYY-MM-DD/reviewed.json --commit
+```
+
+commit 前 importer 会备份数据库。导入时会同时写：
+
+- `storage_execution_events`
+- `data_quality_log`
+
+导入成功后再生成页面：
+
+```bash
+cd /Users/george/Documents/CHM
+python3 -m china_housing_monitor --no-scrape
+```
+
+## Rejection Rules
+
+直接拒绝：
+
+- 土地收储、征迁、拆迁、旧改、城中村统租。
+- 以旧换新、个人/中介收房、二手房交易服务。
+- 全国/多地综述，无法落到具体城市事件。
+- 房价预测、市场评论、投资分析、政策解读合集。
+- 仅标题命中，正文没有收购存量商品房事实。
+- URL 为搜索跳转、验证码页、404、撤稿页。
+- 城市错配。
+
+## Legacy Automated Scanner (v2.x)
+
+v2.x 的自动化 scanner.py 仍然可用，但效果不如手动搜索。适用于：
+
+- 快速预筛选大量城市
+- 自动化测试场景
+- 批量生成候选列表
+
+```bash
+cd /Users/george/Documents/CHM
+python3 skills/storage-event-scanner/scripts/scanner.py --all --run-date YYYY-MM-DD
+```
+
+注意：自动化扫描结果仍需人工审核，不能直接导入。
+
+## Tests
+
+```bash
+cd /Users/george/Documents/CHM
+python3 skills/storage-event-scanner/tests/test_deduplication.py
+python3 skills/storage-event-scanner/tests/test_chm_contract.py
+python3 skills/storage-event-scanner/scripts/scanner.py --help
+python3 skills/storage-event-scanner/scripts/db_importer.py --help
+```
+
+不要把真实全城扫描当测试，因为它依赖浏览器状态、搜索引擎反爬和验证码。

@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>34城底部信号观察智能监测与评估终端</title>
 
+    <!-- Theme init (before render to prevent flash) -->
+    <script>
+        (function() {
+            var t = localStorage.getItem('chm_theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', t);
+        })();
+    </script>
+
     <!-- CSS & JS Libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
@@ -60,7 +68,7 @@
                         <i class="fas fa-map-marked-alt text-blue-500"></i>
                         <span>全国底部信号观察地图</span>
                     </h3>
-                    <p class="text-slate-500 text-[10px] uppercase font-medium mt-0.5">National Property Bottom Signal Map</p>
+                    <p class="text-slate-500 text-[12px] uppercase font-medium mt-0.5">National Property Bottom Signal Map</p>
                 </div>
                 <button onclick="closeMapDrawer()" aria-label="关闭地图" class="w-10 h-10 rounded-full border border-slate-700 bg-slate-950/50 hover:bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer">
                     <i class="fas fa-times"></i>
@@ -75,8 +83,8 @@
         <div class="flex-grow p-5 flex flex-col justify-between overflow-y-auto">
             <div id="chinaMap" class="w-full h-[520px]"></div>
             <!-- Map Legend Details -->
-            <div class="border-t border-slate-800 pt-3.5 mt-3.5 flex flex-wrap items-center justify-around gap-y-2 text-xs">
-                <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.6)]"></span><span class="text-slate-400 font-medium">强信号观察 (BSS ≥ 85)</span></div>
+            <div class="border-t border-slate-800 pt-3.5 mt-3.5 flex flex-wrap items-center justify-around gap-y-2 text-sm">
+                <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.6)]"></span><span class="text-slate-400 font-medium">强信号观察 (BSS >= 85)</span></div>
                 <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-yellow-500 shadow-[0_0_8px_rgba(234,179,8,0.6)]"></span><span class="text-slate-400 font-medium">政策价格共振 (BSS 70-85)</span></div>
                 <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.6)]"></span><span class="text-slate-400 font-medium">价格止跌观察 (BSS 50-70)</span></div>
                 <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]"></span><span class="text-slate-400 font-medium">政策底/下跌通道 (BSS < 50)</span></div>
@@ -89,13 +97,13 @@
          onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openMapDrawer(false)}"
          class="fixed left-0 top-1/2 -translate-y-1/2 z-[60] bg-slate-900/95 hover:bg-slate-800 border-r border-y border-slate-600 text-white rounded-r-xl px-3 py-5 cursor-pointer flex flex-col items-center gap-2.5 shadow-lg select-none group">
         <i class="fas fa-map-marked-alt text-blue-400 group-hover:scale-110 transition-transform text-sm"></i>
-        <span class="text-[10px] font-bold tracking-wider writing-mode-vertical uppercase text-slate-300">全国地图</span>
+        <span class="text-[12px] font-bold tracking-wider writing-mode-vertical uppercase text-slate-300">全国地图</span>
         <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse shadow-[0_0_6px_rgba(59,130,246,0.8)]"></span>
     </div>
 
     <!-- Toast Notification (Accessible) -->
     <div id="toast-container" class="fixed top-24 left-1/2 -translate-x-1/2 z-[150] pointer-events-none transition-all duration-300 transform -translate-y-4 opacity-0 flex flex-col items-center" role="status" aria-live="polite">
-        <div class="px-5 py-3 bg-slate-800/95 border border-slate-600 backdrop-blur-md rounded-2xl text-xs font-semibold text-white shadow-2xl flex items-center gap-2.5">
+        <div class="px-5 py-3 bg-slate-800/95 border border-slate-600 backdrop-blur-md rounded-2xl text-sm font-semibold text-white shadow-2xl flex items-center gap-2.5">
             <i class="fas fa-check-circle text-emerald-400 text-sm"></i>
             <span id="toast-text"></span>
         </div>
@@ -129,44 +137,44 @@
             <!-- Top: Data Sources + System Info -->
             <div class="flex flex-wrap items-start justify-between gap-4 mb-4">
                 <div class="flex flex-wrap items-center gap-x-4 gap-y-1">
-                    <span class="text-slate-500 text-[10px] font-medium">数据来源：</span>
-                    <span class="text-slate-400 text-[10px]">国家统计局</span>
+                    <span class="text-slate-500 text-[12px] font-medium">数据来源：</span>
+                    <span class="text-slate-400 text-[12px]">国家统计局</span>
                     <span class="text-slate-700">·</span>
-                    <span class="text-slate-400 text-[10px]">各地住建局</span>
+                    <span class="text-slate-400 text-[12px]">各地住建局</span>
                     <span class="text-slate-700">·</span>
-                    <span class="text-slate-400 text-[10px]">链家/贝壳</span>
+                    <span class="text-slate-400 text-[12px]">链家/贝壳</span>
                     <span class="text-slate-700">·</span>
-                    <span class="text-slate-400 text-[10px]">央行</span>
+                    <span class="text-slate-400 text-[12px]">央行</span>
                 </div>
-                <div class="flex items-center gap-3 text-slate-500 text-[10px]">
-                    <span>CHM v0.8</span>
-                    <span class="text-slate-700">·</span>
-                    <span>BSS_LOW_DATA_V1</span>
-                    <span class="text-slate-700">·</span>
-                    <span>34 城</span>
-                    <span class="text-slate-700">·</span>
-                    <span>基准期: <span id="footerLastUpdated" class="text-slate-400"></span></span>
-                    <span class="text-slate-700">·</span>
-                    <span>下次更新: <span id="footerNextUpdate" class="text-slate-400"></span></span>
+                <div class="flex flex-wrap items-center gap-1.5 sm:gap-0 text-slate-500 text-[11px] sm:text-[12px]">
+                    <span class="footer-sys-tag inline-flex items-center px-1.5 py-0.5 rounded bg-slate-800/60 text-slate-400 sm:bg-transparent sm:p-0 sm:text-slate-500">CHM v0.9</span>
+                    <span class="hidden sm:inline text-slate-700">·</span>
+                    <span class="footer-sys-tag inline-flex items-center px-1.5 py-0.5 rounded bg-slate-800/60 text-slate-400 sm:bg-transparent sm:p-0 sm:text-slate-500">BSS_LOW_DATA_V1</span>
+                    <span class="hidden sm:inline text-slate-700">·</span>
+                    <span class="footer-sys-tag inline-flex items-center px-1.5 py-0.5 rounded bg-slate-800/60 text-slate-400 sm:bg-transparent sm:p-0 sm:text-slate-500">34 城</span>
+                    <span class="hidden sm:inline text-slate-700">·</span>
+                    <span class="footer-sys-tag inline-flex items-center px-1.5 py-0.5 rounded bg-slate-800/60 text-slate-400 sm:bg-transparent sm:p-0 sm:text-slate-500">基准期: <span id="footerLastUpdated" class="text-slate-300 sm:text-slate-400 ml-0.5"></span></span>
+                    <span class="hidden sm:inline text-slate-700">·</span>
+                    <span class="footer-sys-tag inline-flex items-center px-1.5 py-0.5 rounded bg-blue-900/30 text-blue-400 border border-blue-800/30 sm:bg-transparent sm:border-0 sm:p-0 sm:text-slate-500">下次更新: <span id="footerNextUpdate" class="text-blue-300 sm:text-slate-400 ml-0.5"></span></span>
                 </div>
             </div>
 
             <!-- Disclaimer -->
-            <div class="bg-slate-950/80 border border-slate-800/60 rounded-lg px-4 py-3 mb-4">
-                <p class="text-slate-500 text-[10px] leading-relaxed text-center">
+            <div class="disclaimer-box bg-slate-950/80 border border-slate-800/60 rounded-lg px-4 py-3 mb-4">
+                <p class="text-slate-500 text-[12px] leading-relaxed text-center">
                     免责声明：本终端仅供研究参考，不构成任何投资建议。数据基于公开信息整理，可能存在滞后或偏差。投资决策请以官方披露为准，风险自担。
                 </p>
             </div>
 
             <!-- Bottom: Brand + Action -->
             <div class="flex flex-col sm:flex-row justify-between items-center gap-3">
-                <p class="text-slate-600 text-[10px]">
+                <p class="text-slate-600 text-[12px]">
                     China Core 34 Cities Property Bottom Signal Terminal
                 </p>
                 <div class="flex items-center gap-3" id="footerActions">
                     <a href="https://opc-mind.top/" target="_blank" rel="noopener noreferrer"
-                       class="px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-slate-400 text-[10px] font-medium hover:text-slate-200 hover:border-slate-500 transition-colors flex items-center gap-1.5 cursor-pointer">
-                        <i class="fas fa-arrow-left text-[8px]"></i>
+                       class="px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-slate-400 text-[12px] font-medium hover:text-slate-200 hover:border-slate-500 transition-colors flex items-center gap-1.5 cursor-pointer">
+                        <i class="fas fa-arrow-left text-[10px]"></i>
                         返回 George Lue 个人主页
                     </a>
                 </div>
@@ -193,6 +201,9 @@
 {{JS_MAP}}
     </script>
     <script>
+{{JS_ONBOARDING}}
+    </script>
+    <script>
         window.addEventListener('DOMContentLoaded', () => {
             const db = window.MONITOR_DB;
             document.getElementById('footerLastUpdated').innerText = db.last_updated;
@@ -211,9 +222,9 @@
                     e.stopPropagation();
                     onCityChange(cid);
                 };
-                btn.className = "px-3 py-1.5 text-xs font-bold rounded-lg border transition-all flex-shrink-0 flex items-center gap-1.5 bg-slate-900/60 border-slate-800 text-slate-300 hover:text-white hover:border-slate-600 cursor-pointer";
+                btn.className = "px-3 py-1.5 text-sm font-bold rounded-lg border transition-all flex-shrink-0 flex items-center gap-1.5 bg-slate-900/60 border-slate-800 text-slate-300 hover:text-white hover:border-slate-600 cursor-pointer";
                  btn.innerHTML = `
-                    <span class="font-semibold text-xs">${city.name} <strong class="ml-0.5 text-[9px] font-bold opacity-70">${Number(city.bottom_score).toFixed(1)}</strong></span>
+                    <span class="font-semibold text-sm">${city.name} <strong class="ml-0.5 text-[11px] font-bold opacity-70">${Number(city.bottom_score).toFixed(1)}</strong></span>
                 `;
 
                 if (city.level === "一线") {
@@ -232,14 +243,27 @@
             renderRankings(db.rankings, defaultCity);
             renderCityDashboard(defaultCity);
 
-            // Auto-open map drawer on first visit only (with countdown)
-            const hasSeenMap = localStorage.getItem('chm_map_seen');
-            if (!hasSeenMap) {
+            // Start onboarding for first-time users
+            if (!isOnboardingDone()) {
                 setTimeout(() => {
-                    openMapDrawer(true);
-                    localStorage.setItem('chm_map_seen', '1');
-                }, 600);
+                    startOnboarding();
+                }, 1000);
             }
+
+            // Landscape hint for mobile
+            function updateLandscapeHint() {
+                const hints = document.querySelectorAll('.chart-legend-hint');
+                hints.forEach(hint => {
+                    if (window.innerWidth < 768 && window.innerHeight > window.innerWidth) {
+                        hint.style.display = 'inline-flex';
+                    } else {
+                        hint.style.display = 'none';
+                    }
+                });
+            }
+            updateLandscapeHint();
+            window.addEventListener('resize', updateLandscapeHint);
+            window.addEventListener('orientationchange', () => setTimeout(updateLandscapeHint, 100));
 
             // Any manual click inside the map drawer cancels auto-close timer
             const mapDrawerEl = document.getElementById('map-drawer');
@@ -248,7 +272,33 @@
                     cancelMapAutoClose();
                 });
             }
+
+            // Theme toggle
+            const themeToggle = document.getElementById('theme-toggle');
+            if (themeToggle) {
+                themeToggle.addEventListener('click', () => {
+                    const current = document.documentElement.getAttribute('data-theme') || 'dark';
+                    const next = current === 'dark' ? 'light' : 'dark';
+                    document.documentElement.setAttribute('data-theme', next);
+                    localStorage.setItem('chm_theme', next);
+                    updateThemeIcon(next);
+                    // Re-render all theme-dependent components
+                    const cityId = localStorage.getItem('selected_city') || 'cd';
+                    if (typeof rerenderChartsForTheme === 'function') rerenderChartsForTheme();
+                    if (typeof renderRankings === 'function' && window.MONITOR_DB) renderRankings(window.MONITOR_DB.rankings, cityId);
+                    if (typeof renderCityDashboard === 'function') renderCityDashboard(cityId);
+                    if (typeof updateNavButtons === 'function') updateNavButtons(cityId);
+                });
+            }
+            updateThemeIcon(document.documentElement.getAttribute('data-theme') || 'dark');
         });
+
+        function updateThemeIcon(theme) {
+            const icon = document.querySelector('#theme-toggle i');
+            if (icon) {
+                icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+            }
+        }
     </script>
 
     <!-- Methodology Modal -->
@@ -261,7 +311,7 @@
                         <i class="fas fa-book-open text-blue-500"></i>
                         <span>CHM 终端更新日志与算法逻辑</span>
                     </h2>
-                    <p class="text-slate-500 text-[10px] tracking-wider uppercase font-medium mt-0.5">
+                    <p class="text-slate-500 text-[12px] tracking-wider uppercase font-medium mt-0.5">
                         Scoring Methodology & Evolution Changelog
                     </p>
                 </div>
@@ -272,13 +322,13 @@
 
             <!-- Tabs Navigation -->
             <div class="px-6 border-b border-slate-800 bg-slate-950/20 flex gap-2">
-                <button id="btn-tab-changelog" onclick="switchMethodologyTab('tab-changelog')" class="px-4 py-2.5 text-xs font-bold border-b-2 border-blue-500 text-blue-400 transition-all cursor-pointer">
+                <button id="btn-tab-changelog" onclick="switchMethodologyTab('tab-changelog')" class="px-4 py-2.5 text-sm font-bold border-b-2 border-blue-500 text-blue-400 transition-all cursor-pointer">
                     更新日志 (Changelog)
                 </button>
-                <button id="btn-tab-formula" onclick="switchMethodologyTab('tab-formula')" class="px-4 py-2.5 text-xs font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-350 transition-all cursor-pointer">
+                <button id="btn-tab-formula" onclick="switchMethodologyTab('tab-formula')" class="px-4 py-2.5 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-350 transition-all cursor-pointer">
                     评分算法与权重 (Scoring Logic)
                 </button>
-                <button id="btn-tab-statuses" onclick="switchMethodologyTab('tab-statuses')" class="px-4 py-2.5 text-xs font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-350 transition-all cursor-pointer">
+                <button id="btn-tab-statuses" onclick="switchMethodologyTab('tab-statuses')" class="px-4 py-2.5 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-350 transition-all cursor-pointer">
                     底部状态与可信度 (Status & Grade)
                 </button>
             </div>
@@ -291,31 +341,46 @@
                     <div class="border-l-4 border-blue-500 bg-blue-950/20 p-4 rounded-r-lg">
                         <div class="flex items-center justify-between mb-1.5">
                             <h3 class="text-white text-sm font-bold flex items-center gap-2">
-                                <span class="px-1.5 py-0.5 bg-blue-500 text-slate-950 text-[9px] font-bold rounded">Active</span>
-                                v0.8 重大版本迭代
+                                <span class="px-1.5 py-0.5 bg-blue-500 text-slate-950 text-[11px] font-bold rounded">Active</span>
+                                v0.9 浅色主题 & 数据扩展 & 使用指引
                             </h3>
-                            <span class="text-slate-500 text-[10px] font-mono">2026-06-01</span>
+                            <span class="text-slate-500 text-[12px] font-mono">2026-06-07</span>
                         </div>
-                        <p class="text-slate-400 text-xs leading-relaxed">
-                            本轮更新确立了 <strong>“核心 34 城数据库扩展”</strong> 和 <strong>“轻量化零依赖收储事件智能扫描器”</strong> 架构。全面接入 34 个核心城市，构建了首个支持 34 城可视化 ECharts 地图、动态资金温度计、专业券商研报共识与多因子底层状态校验的高级监测终端，实现“收储-资金-价格”三因子精确穿透。
+                        <p class="text-slate-400 text-sm leading-relaxed">
+                            本轮更新新增<strong>浅色主题</strong>支持，NBS 价格指数扩展至 2023 年起覆盖 34 城 × 35-36 个月，全局字体放大提升可读性，并引入<strong>首次使用指引系统</strong>帮助新用户快速了解终端核心功能。
                         </p>
                     </div>
 
                     <div class="space-y-4">
-                        <h4 class="text-slate-200 text-xs font-bold uppercase tracking-wider border-b border-slate-800 pb-1.5 flex items-center gap-1.5">
+                        <h4 class="text-slate-200 text-sm font-bold uppercase tracking-wider border-b border-slate-800 pb-1.5 flex items-center gap-1.5">
                             <i class="fas fa-history text-slate-600"></i>
                             版本演进详情
                         </h4>
                         
                         <div class="relative pl-5 border-l border-slate-800 space-y-5">
+                            <!-- v0.9 -->
+                            <div class="relative">
+                                <div class="absolute -left-[25px] top-1.5 w-2 h-2 rounded-full bg-emerald-500 ring-4 ring-emerald-950"></div>
+                                <h5 class="text-slate-200 text-sm font-semibold flex items-center gap-2">
+                                    <span>v0.9 — 浅色主题 & 数据扩展 & 使用指引</span>
+                                    <span class="text-slate-500 text-[12px]">2026-06-07</span>
+                                </h5>
+                                <ul class="list-disc pl-4 mt-1.5 text-[13px] text-slate-400 space-y-1 leading-relaxed">
+                                    <li><strong>浅色主题</strong>：支持深色/浅色双主题切换，点击右上角太阳/月亮图标，主题设置自动保存。</li>
+                                    <li><strong>NBS 价格指数扩展至 2023 年</strong>：覆盖 34 城 × 35-36 个月，新增 264 条记录，评分基准更完整。</li>
+                                    <li><strong>全局字体放大 +2px</strong>：移动端 14px→15px，提升可读性。</li>
+                                    <li><strong>首次使用指引</strong>：7 步引导新用户了解核心功能（收储记录、评分逻辑、资金温度、地图入口等），完成后不再弹出。</li>
+                                </ul>
+                            </div>
+
                             <!-- v0.8 -->
                             <div class="relative">
                                 <div class="absolute -left-[25px] top-1.5 w-2 h-2 rounded-full bg-emerald-500 ring-4 ring-emerald-950"></div>
-                                <h5 class="text-slate-200 text-xs font-semibold flex items-center gap-2">
+                                <h5 class="text-slate-200 text-sm font-semibold flex items-center gap-2">
                                     <span>v0.8 — 34城扩展与收储信息扫描器 Skill 创建</span>
-                                    <span class="text-slate-500 text-[10px]">2026-06-01</span>
+                                    <span class="text-slate-500 text-[12px]">2026-06-01</span>
                                 </h5>
-                                <ul class="list-disc pl-4 mt-1.5 text-[11px] text-slate-400 space-y-1 leading-relaxed">
+                                <ul class="list-disc pl-4 mt-1.5 text-[13px] text-slate-400 space-y-1 leading-relaxed">
                                     <li><strong>34城大版图扩展</strong>：新增太原、合肥、福州、南昌等 16 城，全面覆盖中国 34 个核心城市。</li>
                                     <li><strong>ECharts 动态可视化热力地图</strong>：首次引入 <code>map.js</code> 动态呈现地理排布与底部信号强度的地理穿透。</li>
                                     <li><strong>收储信息扫描器 (Scanner Skill)</strong>：开发并跑通了首个零外部依赖的 Python 抓取去重流程，能自动识别、要素提取、智能去重，判定事件 6 大生命阶段并写入数据库。</li>
@@ -325,13 +390,13 @@
                             <!-- v0.7.1 -->
                             <div class="relative">
                                 <div class="absolute -left-[25px] top-1.5 w-2 h-2 rounded-full bg-blue-500 ring-4 ring-blue-950"></div>
-                                <h5 class="text-slate-200 text-xs font-semibold flex items-center gap-2">
+                                <h5 class="text-slate-200 text-sm font-semibold flex items-center gap-2">
                                     <span>v0.7.1 — 整体算法升级与真实数据捕获（杜绝拟合失真）</span>
-                                    <span class="text-slate-500 text-[10px]">2026-05-31</span>
+                                    <span class="text-slate-500 text-[12px]">2026-05-31</span>
                                 </h5>
-                                <ul class="list-disc pl-4 mt-1.5 text-[11px] text-slate-400 space-y-1 leading-relaxed">
+                                <ul class="list-disc pl-4 mt-1.5 text-[13px] text-slate-400 space-y-1 leading-relaxed">
                                     <li><strong>算法硬核升级（杜绝拟合失真）</strong>：二手住宅 MOM 指数采用真实月度边际变化，严禁任何数据脑补与拟合失真行为，数据不全则降权进入低数据保护模式，真实展现市场温度。</li>
-                                    <li><strong>真实网签与供给穿透</strong>：自动屏蔽“摸底公告”水分，只认官方签约项目，成交量、挂牌量数据源缺失时自动进入降权降级处理。</li>
+                                    <li><strong>真实网签与供给穿透</strong>：自动屏蔽"摸底公告"水分，只认官方签约项目，成交量、挂牌量数据源缺失时自动进入降权降级处理。</li>
                                     <li><strong>智能解释 Tooltips 触达</strong>：四大核心参数面板集成动态解释说明，对状态、风险、信号和数据可信度进行底层算法规则的直观气泡翻译。</li>
                                 </ul>
                             </div>
@@ -339,12 +404,12 @@
                             <!-- v0.1.1 -->
                             <div class="relative">
                                 <div class="absolute -left-[25px] top-1.5 w-2 h-2 rounded-full bg-slate-500 ring-4 ring-slate-950"></div>
-                                <h5 class="text-slate-200 text-xs font-semibold flex items-center gap-2">
+                                <h5 class="text-slate-200 text-sm font-semibold flex items-center gap-2">
                                     <span>v0.1.1 — 部署上线首版与券商研报共识接入</span>
-                                    <span class="text-slate-500 text-[10px]">2026-05-31</span>
+                                    <span class="text-slate-500 text-[12px]">2026-05-31</span>
                                 </h5>
-                                <ul class="list-disc pl-4 mt-1.5 text-[11px] text-slate-400 space-y-1 leading-relaxed">
-                                    <li><strong>百分制分值与模块化架构</strong>：部署上线第一版，确立“楼市底部信号数据仓库 + 多因子评分系统”底层框架，拆分为核心 Python 子系统以及独立的 JS/CSS 静态组件。</li>
+                                <ul class="list-disc pl-4 mt-1.5 text-[13px] text-slate-400 space-y-1 leading-relaxed">
+                                    <li><strong>百分制分值与模块化架构</strong>：部署上线第一版，确立"楼市底部信号数据仓库 + 多因子评分系统"底层框架，拆分为核心 Python 子系统以及独立的 JS/CSS 静态组件。</li>
                                     <li><strong>专业意见 (Professional Opinions) 接入</strong>：SQLite 数据库中独立建表，精细化录入并打通主流券商分析师对该城市当前底部的研报共识。</li>
                                     <li><strong>全国资金温度仪表盘</strong>：全国 radial bar 表盘支持按季度增量进度穿透呈现，自动剔除滞后数据以规避误导，对过时超 6 个月的数据判定执行强上限拦截。</li>
                                 </ul>
@@ -360,111 +425,78 @@
                             <i class="fas fa-calculator text-emerald-500"></i>
                             BSS_LOW_DATA_V1 三因子算法核心公式
                         </h3>
-                        <p class="text-slate-400 text-xs leading-relaxed">
+                        <p class="text-slate-400 text-sm leading-relaxed">
                             为了在某些城市缺失地方住建局网签量、去化周期等强力高频数据时依然具备可评估性，CHM 采用了 <strong>BSS_LOW_DATA_V1 低数据评分模型</strong>。通过价格基本面、地方收储推进度、全国资金流速这三个极难造假的数据维度进行加权求值：
                         </p>
-                        <div class="my-3 bg-slate-950/80 border border-slate-800 p-3 rounded font-mono text-center text-xs text-emerald-400">
+                        <div class="my-3 bg-slate-950/80 border border-slate-800 p-3 rounded font-mono text-center text-sm text-emerald-400">
                             Bottom Signal Score (BSS) = 0.60 * S_Price + 0.30 * S_Storage + 0.10 * S_PBOC
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <!-- Factor 1 -->
                         <div class="bg-slate-950 border border-slate-800 rounded-lg p-4 space-y-2">
-                            <div class="flex items-center gap-1.5 text-xs font-bold text-slate-200">
+                            <div class="flex items-center gap-1.5 text-sm font-bold text-slate-200">
                                 <span class="w-5 h-5 rounded bg-blue-950 text-blue-400 font-mono flex items-center justify-center">1</span>
                                 S_Price 价格走势 (60%)
                             </div>
-                            <p class="text-[11px] text-slate-400 leading-relaxed">
-                                <strong>计算源</strong>：统计局官方发布的二手住宅环比指数（MOM）。
-                            </p>
-                            <p class="text-[11px] text-slate-400 leading-relaxed">
-                                <strong>公式逻辑</strong>：提取最新连续 3 个月环比均值，判定价格是否偏离 100 临界线。若均值在收窄（跌幅减少）则基准得分递增；同时考量近 6 个月历史数据的连续性权重，避免偶发性脉冲波动误导得分。
-                            </p>
+                            <p class="text-[13px] text-slate-400 leading-relaxed"><strong>计算源</strong>：统计局官方发布的二手住宅环比指数（MOM）。</p>
+                            <p class="text-[13px] text-slate-400 leading-relaxed"><strong>公式逻辑</strong>：提取最新连续 3 个月环比均值，判定价格是否偏离 100 临界线。若均值在收窄（跌幅减少）则基准得分递增；同时考量近 6 个月历史数据的连续性权重，避免偶发性脉冲波动误导得分。</p>
                         </div>
-                        
-                        <!-- Factor 2 -->
                         <div class="bg-slate-950 border border-slate-800 rounded-lg p-4 space-y-2">
-                            <div class="flex items-center gap-1.5 text-xs font-bold text-slate-200">
+                            <div class="flex items-center gap-1.5 text-sm font-bold text-slate-200">
                                 <span class="w-5 h-5 rounded bg-emerald-950 text-emerald-400 font-mono flex items-center justify-center">2</span>
                                 S_Storage 收储执行 (30%)
                             </div>
-                            <p class="text-[11px] text-slate-400 leading-relaxed">
-                                <strong>计算源</strong>：经官方或地方住建局核实的国企保障房收储事件阶段。
-                            </p>
-                            <p class="text-[11px] text-slate-400 leading-relaxed">
-                                <strong>公式逻辑</strong>：根据事件的实际进展加权：<code>政策表态 (10)</code> → <code>房源征集 (25)</code> → <code>正式招标 (45)</code> → <code>成交公示 (70)</code> → <code>签约收购 (90)</code> → <code>改造完成 (100)</code>。同时引入时间衰减乘数 $\max(0, 1 - 0.15 \times \Delta t)$，若 6 个月内无任何后续进展，该事件得分自动清零，防止僵尸方案虚胖得分。
-                            </p>
+                            <p class="text-[13px] text-slate-400 leading-relaxed"><strong>计算源</strong>：经官方或地方住建局核实的国企保障房收储事件阶段。</p>
+                            <p class="text-[13px] text-slate-400 leading-relaxed"><strong>公式逻辑</strong>：根据事件的实际进展加权：<code>政策表态 (10)</code> → <code>房源征集 (25)</code> → <code>正式招标 (45)</code> → <code>成交公示 (70)</code> → <code>签约收购 (90)</code> → <code>改造完成 (100)</code>。同时引入时间衰减乘数，若 6 个月内无任何后续进展，该事件得分自动清零。</p>
                         </div>
-
-                        <!-- Factor 3 -->
                         <div class="bg-slate-950 border border-slate-800 rounded-lg p-4 space-y-2">
-                            <div class="flex items-center gap-1.5 text-xs font-bold text-slate-200">
+                            <div class="flex items-center gap-1.5 text-sm font-bold text-slate-200">
                                 <span class="w-5 h-5 rounded bg-amber-950 text-amber-400 font-mono flex items-center justify-center">3</span>
                                 S_PBOC 资金温度 (10%)
                             </div>
-                            <p class="text-[11px] text-slate-400 leading-relaxed">
-                                <strong>计算源</strong>：央行公布的全国保障性住房再贷款（3000亿）使用进展。
-                            </p>
-                            <p class="text-[11px] text-slate-400 leading-relaxed">
-                                <strong>公式逻辑</strong>：将官方公布的累计额度使用率与上季度增幅进行指数映射。若官方数据超过 6 个月未予更新，激活<strong>数据过时惩罚限流锁</strong>，将该项得分强行压制在 30 分上限，以确保评分不会被陈旧数据虚抬。
-                            </p>
+                            <p class="text-[13px] text-slate-400 leading-relaxed"><strong>计算源</strong>：央行公布的全国保障性住房再贷款（3000亿）使用进展。</p>
+                            <p class="text-[13px] text-slate-400 leading-relaxed"><strong>公式逻辑</strong>：将官方公布的累计额度使用率与上季度增幅进行指数映射。若官方数据超过 6 个月未予更新，激活<strong>数据过时惩罚限流锁</strong>，将该项得分强行压制在 30 分上限。</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Tab 3: Status Tiers & Confidence -->
+                <!-- Tab 3: Status Tiers -->
                 <div id="tab-statuses" class="hidden space-y-5">
                     <div class="space-y-4">
-                        <h4 class="text-slate-200 text-xs font-bold uppercase tracking-wider border-b border-slate-800 pb-1.5 flex items-center gap-1.5">
+                        <h4 class="text-slate-200 text-sm font-bold uppercase tracking-wider border-b border-slate-800 pb-1.5 flex items-center gap-1.5">
                             <i class="fas fa-layer-group text-slate-500"></i>
                             五维状态跃迁梯队
                         </h4>
-                        
                         <div class="space-y-3">
                             <div class="flex items-start gap-3 bg-slate-950 p-3 rounded border border-slate-850">
-                                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-850 text-slate-400 w-24 text-center">下跌通道</span>
-                                <p class="text-[11px] text-slate-400 leading-relaxed">
-                                    <strong>触发条件</strong>：二手住宅价格环比指数持续下行，BSS 得分低于 50，且本地无任何实质性收储动作，资金基本面冻结。此阶段市场寻底中。
-                                </p>
+                                <span class="px-2 py-0.5 rounded text-[12px] font-bold bg-slate-850 text-slate-400 w-24 text-center">下跌通道</span>
+                                <p class="text-[13px] text-slate-400 leading-relaxed"><strong>触发条件</strong>：二手住宅价格环比指数持续下行，BSS 得分低于 50，且本地无任何实质性收储动作。</p>
                             </div>
-
                             <div class="flex items-start gap-3 bg-slate-950 p-3 rounded border border-slate-850">
-                                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-950 text-amber-400 w-24 text-center">政策底观察</span>
-                                <p class="text-[11px] text-slate-400 leading-relaxed">
-                                    <strong>触发条件</strong>：BSS 突破 50。当本地政府启动收储政策表态或发布征集房源草案，或全国再贷款额度开始实质释放时。意味着政策利好开始落地，但市场信心尚未扭转。
-                                </p>
+                                <span class="px-2 py-0.5 rounded text-[12px] font-bold bg-amber-950 text-amber-400 w-24 text-center">政策底观察</span>
+                                <p class="text-[13px] text-slate-400 leading-relaxed"><strong>触发条件</strong>：BSS 突破 50。当本地政府启动收储政策表态或发布征集房源草案，或全国再贷款额度开始实质释放时。</p>
                             </div>
-
                             <div class="flex items-start gap-3 bg-slate-950 p-3 rounded border border-slate-850">
-                                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-950 text-blue-400 w-24 text-center">价格止跌观察</span>
-                                <p class="text-[11px] text-slate-400 leading-relaxed">
-                                    <strong>触发条件</strong>：二手房环比均值降幅收窄趋近于 0，或本地收储进展突入正式招投标/成交公示阶段。意味着价格层面出现显著的空头防守防线。
-                                </p>
+                                <span class="px-2 py-0.5 rounded text-[12px] font-bold bg-blue-950 text-blue-400 w-24 text-center">价格止跌观察</span>
+                                <p class="text-[13px] text-slate-400 leading-relaxed"><strong>触发条件</strong>：二手房环比均值降幅收窄趋近于 0，或本地收储进展突入正式招投标/成交公示阶段。</p>
                             </div>
-
                             <div class="flex items-start gap-3 bg-slate-950 p-3 rounded border border-slate-850">
-                                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950 text-emerald-400 w-24 text-center">政策价格共振</span>
-                                <p class="text-[11px] text-slate-400 leading-relaxed">
-                                    <strong>触发条件</strong>：二手房官方 MOM 连续三个月走平或微弹，且本地收储正式进入大规模签约收购或交付配租状态。资金、收储和价格达成完美合力。
-                                </p>
+                                <span class="px-2 py-0.5 rounded text-[12px] font-bold bg-emerald-950 text-emerald-400 w-24 text-center">政策价格共振</span>
+                                <p class="text-[13px] text-slate-400 leading-relaxed"><strong>触发条件</strong>：二手房官方 MOM 连续三个月走平或微弹，且本地收储正式进入大规模签约收购或交付配租状态。</p>
                             </div>
-
                             <div class="flex items-start gap-3 bg-slate-950 p-3 rounded border border-slate-850">
-                                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-950 text-indigo-400 w-24 text-center">底数据强信号</span>
-                                <p class="text-[11px] text-slate-400 leading-relaxed">
-                                    <strong>触发条件</strong>：本地收储工作如火如荼（有大规模签约和公示），但鉴于该城市地方房管局数据缺失（没有高频网签量和去化周期交叉确证），系统用此兜底状态警示投资者注意校验。
-                                </p>
+                                <span class="px-2 py-0.5 rounded text-[12px] font-bold bg-indigo-950 text-indigo-400 w-24 text-center">底数据强信号</span>
+                                <p class="text-[13px] text-slate-400 leading-relaxed"><strong>触发条件</strong>：本地收储工作如火如荼（有大规模签约和公示），但鉴于该城市地方房管局数据缺失，系统用此兜底状态警示投资者注意校验。</p>
                             </div>
                         </div>
                     </div>
-
                     <div class="space-y-4">
-                        <h4 class="text-slate-200 text-xs font-bold uppercase tracking-wider border-b border-slate-800 pb-1.5 flex items-center gap-1.5">
+                        <h4 class="text-slate-200 text-sm font-bold uppercase tracking-wider border-b border-slate-800 pb-1.5 flex items-center gap-1.5">
                             <i class="fas fa-shield-alt text-slate-500"></i>
                             可信度等级评定 (Evidence Grade)
                         </h4>
-                        <p class="text-slate-400 text-xs leading-relaxed">
+                        <p class="text-slate-400 text-sm leading-relaxed">
                             为了防止不可靠的数据源推高评分，系统对每个城市的数据集覆盖完整度和 quality 进行严格评定（分为 A-E 五档）。如果官方网签量、挂牌量和收储执行全覆盖，最高授予 <strong>A 级</strong>。如果缺失超 50% 核心数据，封顶在 <strong>C 级</strong>或 <strong>D 级</strong>，并带有醒目警告。
                         </p>
                     </div>

@@ -241,6 +241,8 @@ def compute_and_store_all_scores(conn):
             if events:
                 for ev_stage, ev_date, ev_discount, ev_eligible in events:
                     ev_stages.append(ev_stage)
+                    if ev_eligible != 1 or ev_stage == "政策表态":
+                        continue
                     base = stage_base_scores.get(ev_stage, 0)
                     decay = storage_recency_multiplier(ev_date, m)
                     weighted = base * decay
@@ -273,6 +275,7 @@ def compute_and_store_all_scores(conn):
             cursor.execute("""
                 SELECT resale_home_mom FROM city_price_index_monthly
                 WHERE city_id = ? AND month <= ?
+                GROUP BY month
                 ORDER BY month ASC
             """, (cid, m))
             price_rows = cursor.fetchall()

@@ -174,14 +174,17 @@ def fetch_data_payload():
         """, (cid,))
         idx_rows = cursor.fetchall()
         price_index_history = []
+        seen_months = set()
         for ir in idx_rows:
-            price_index_history.append({
-                "date": ir[0],
-                "new_home_mom": ir[1],
-                "new_home_yoy": ir[2],
-                "resale_home_mom": ir[3],
-                "resale_home_yoy": ir[4]
-            })
+            if ir[0] not in seen_months:
+                seen_months.add(ir[0])
+                price_index_history.append({
+                    "date": ir[0],
+                    "new_home_mom": ir[1],
+                    "new_home_yoy": ir[2],
+                    "resale_home_mom": ir[3],
+                    "resale_home_yoy": ir[4]
+                })
 
         # Official transaction volume timeline
         cursor.execute("""
