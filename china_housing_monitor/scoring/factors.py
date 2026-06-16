@@ -197,7 +197,7 @@ def compute_and_store_all_scores(conn):
     for year in [2024, 2025]:
         for month in range(1, 13):
             months.append(f"{year}-{month:02d}")
-    for month in range(1, 6):
+    for month in range(1, 7):
         months.append(f"2026-{month:02d}")
 
     stage_base_scores = {

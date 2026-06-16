@@ -1,12 +1,11 @@
 """Web crawler for Lianjia housing market data.
 
 Scrapes listing counts and average unit prices from Lianjia for each core city.
-Includes robust error fallback with synthetic price estimation when blocked.
+When blocked or failed, skips the city entirely (no synthetic data).
 """
 import sqlite3
 import re
 import ssl
-import random
 import urllib.request
 from datetime import datetime
 
@@ -69,41 +68,16 @@ def crawl_city_market_data(city_id, conn=None):
     except Exception as e:
         print(f"Crawler ERROR/BLOCKED for {city_prefix} ({city_id}): {e}")
 
-    # --- FALLBACK LOGIC ---
+    # --- BLOCKED/FAILED: skip entirely, no synthetic data ---
     if not listings:
         listings = -1
-        print(f"Listings count is suppressed or unavailable for {city_prefix} ({city_id}), storing -1")
         list_status = "missing"
         list_conf = 0
 
     if not avg_price:
-        try:
-            read_conn = sqlite3.connect(DB_PATH)
-            read_cursor = read_conn.cursor()
-            read_cursor.execute("SELECT price_sqm FROM market_index WHERE city_id = ? AND date < ? ORDER BY date DESC LIMIT 1", (city_id, current_date))
-            row = read_cursor.fetchone()
-            if not row:
-                read_cursor.execute("SELECT price_sqm FROM market_index WHERE city_id = ? ORDER BY date DESC LIMIT 1", (city_id,))
-                row = read_cursor.fetchone()
-            read_conn.close()
-
-            if row:
-                random.seed(city_id + "_" + current_date)
-                coef = 0.990 + random.uniform(0.0, 0.007)
-                avg_price = int(row[0] * coef)
-                print(f"Price synthetic fallback applied for {city_prefix} ({city_id}): {avg_price} (coefficient {coef:.4f})")
-                price_status = "synthetic"
-                price_conf = 30
-            else:
-                avg_price = 12000
-                print(f"Price base synthetic fallback applied for {city_prefix} ({city_id}): {avg_price}")
-                price_status = "synthetic"
-                price_conf = 20
-        except Exception as ex:
-            print(f"Database error in price fallback for {city_prefix} ({city_id}): {ex}")
-            avg_price = 12000
-            price_status = "synthetic"
-            price_conf = 20
+        print(f"Crawler blocked for {city_prefix} ({city_id}), skipping — no data inserted")
+        price_status = "missing"
+        price_conf = 0
 
     # Write data quality logs to DB (always runs, for every city)
     try:
@@ -148,16 +122,15 @@ def update_all_cities_market_data():
     print("\nStarting automated data updates for all core cities...")
     for cid, info in CORE_CITIES.items():
         listings, price, status, conf = crawl_city_market_data(cid, conn)
-        if price:
-            # If listings are suppressed (-1), force synthetic regardless of price status
-            if listings == -1:
-                status = "synthetic"
-            is_eligible = 1 if status not in ["synthetic", "estimated", "missing"] else 0
-            cursor.execute("""
-            INSERT OR REPLACE INTO market_index (city_id, date, listings, price_sqm, data_status, is_score_eligible, source_label)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-            """, (cid, current_date, listings, price, status, is_eligible, '链家' if status == 'scraped' else '算法回退'))
-            print(f"Updated {info['name']} ({cid}) for {current_date}: Listings={listings}, Price={price} (status={status})")
+        if not price:
+            print(f"Skipped {info['name']} ({cid}) — no data")
+            continue
+        is_eligible = 1 if status == "scraped" else 0
+        cursor.execute("""
+        INSERT OR REPLACE INTO market_index (city_id, date, listings, price_sqm, data_status, is_score_eligible, source_label, collected_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'))
+        """, (cid, current_date, listings, price, status, is_eligible, '链家'))
+        print(f"Updated {info['name']} ({cid}) for {current_date}: Listings={listings}, Price={price} (status={status})")
 
     conn.commit()
     conn.close()

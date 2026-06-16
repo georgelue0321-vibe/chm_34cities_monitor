@@ -115,6 +115,44 @@ compat.py (test shim)
 
 - **Test DB isolation**: The test suite copies the production DB to `scratch/test_monitor_db.sqlite` before mutating it. It patches `config.DB_PATH` at runtime.
 
+- **Text content must be directly quoted**: `professional_opinions.consensus`、`storage_execution_events.details` 等文字字段，必须引用原始来源（券商研报、政府公告）原文，**禁止 AI 生成或总结**。数据字段（价格、环比、同比）可从 API 获取，但分析文字必须有可查证的原始出处。
+
+## Monthly data workflow
+
+### 月中指数据提取（每月一次）
+**时机**: NBS 70城数据发布后（通常每月18日前后）
+
+**步骤**:
+1. 用 `browser-use --headed` 打开 https://www.cih-index.com/data/index/esfHouse.html
+2. 提取34城二手住宅数据（均价、环比、同比）
+3. **只更新已有链家数据的城市/月份**，不插入新行（避免 listings = -1）
+4. 导入 `market_index` 表，`source_label='中指研究院'`
+5. 可用 MoM% 反推上月价格：`prev_price = curr_price / (1 + mom/100)`
+
+**数据格式**:
+```python
+# 每城市: (价格, 环比%)
+data = {
+    'bj': (62090, -0.38),  # 北京
+    'sh': (55173, 0.13),   # 上海
+    # ...
+}
+```
+
+**导入逻辑**:
+```python
+# 只更新价格，不覆盖挂牌量
+cur.execute("""
+    UPDATE market_index 
+    SET price_sqm = ?, source_label = '中指研究院', data_status = 'official'
+    WHERE city_id = ? AND date = ?
+""", (price, cid, current_month))
+```
+
+**注意**: 
+- 中指数据不直接影响评分（评分用NBS），主要用于展示和交叉验证
+- 不要用 INSERT OR REPLACE，会覆盖链家挂牌量数据
+
 ## Data model key tables
 
 | Table | Purpose |

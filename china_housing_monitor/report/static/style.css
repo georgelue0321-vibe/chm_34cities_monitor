@@ -516,20 +516,24 @@ a:focus-visible {
     transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* === Theme Toggle Button === */
-#theme-toggle {
+/* === Theme Toggle & Methodology Buttons === */
+#theme-toggle,
+#methodology-btn {
     transition: all 0.2s ease;
 }
-#theme-toggle:hover {
+#theme-toggle:hover,
+#methodology-btn:hover {
     background: #1e293b;
     border-color: #475569;
 }
-[data-theme="light"] #theme-toggle {
+[data-theme="light"] #theme-toggle,
+[data-theme="light"] #methodology-btn {
     background: #ffffff;
     border-color: #e2e8f0;
     color: #475569;
 }
-[data-theme="light"] #theme-toggle:hover {
+[data-theme="light"] #theme-toggle:hover,
+[data-theme="light"] #methodology-btn:hover {
     background: #f1f5f9;
     border-color: #cbd5e1;
     color: #0f172a;

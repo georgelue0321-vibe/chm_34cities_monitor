@@ -238,7 +238,7 @@ def fetch_data_payload():
         # Brokerage Opinions
         cursor.execute("""
         SELECT date, institution, opinion, consensus
-        FROM professional_opinions WHERE city_id = ? ORDER BY id ASC
+        FROM professional_opinions WHERE city_id = ? ORDER BY date ASC
         """, (cid,))
         op_rows = cursor.fetchall()
         opinions = []

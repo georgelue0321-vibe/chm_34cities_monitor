@@ -100,7 +100,7 @@ def init_db(force_reset=False):
         new_home_yoy REAL,
         resale_home_mom REAL,
         resale_home_yoy REAL,
-        source TEXT DEFAULT 'NBS_70CITY',
+        source TEXT DEFAULT 'EASTMONEY_API',
         source_url TEXT,
         collected_at TEXT,
         data_status TEXT,
@@ -242,11 +242,11 @@ def init_db(force_reset=False):
             cursor.execute("DELETE FROM cities WHERE id = ?", (cid,))
     
     pboc_history = [
-        ("2024-05-17", 0.0, 0.0, "央行设立公告"),
-        ("2024-06-30", 12.1, 4.03, "央行二季度结构性货币政策工具披露"),
-        ("2024-09-30", 16.2, 5.4, "央行三季度货币政策执行报告披露")
+        ("2024-05-17", 0.0, 0.0, "央行设立公告", "2024-05-17 00:00:00"),
+        ("2024-06-30", 12.1, 4.03, "央行二季度结构性货币政策工具披露", "2024-06-30 00:00:00"),
+        ("2024-09-30", 16.2, 5.4, "央行三季度货币政策执行报告披露", "2024-09-30 00:00:00")
     ]
-    cursor.executemany("INSERT OR IGNORE INTO pboc_global VALUES (?, ?, ?, ?)", pboc_history)
+    cursor.executemany("INSERT OR IGNORE INTO pboc_global VALUES (?, ?, ?, ?, ?)", pboc_history)
     conn.commit()
 
     try:
@@ -311,15 +311,8 @@ def init_db(force_reset=False):
         """, (new_fz_hash, new_fz_title))
     conn.commit()
 
-    from .seed import seed_historical_data, seed_nbs_from_csv
+    from .seed import seed_historical_data
     seed_historical_data(conn)
-    
-    # Import NBS data from CSV for new 16 cities (v0.8)
-    csv_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "nbs_70city_full_202401_202604.csv")
-    if os.path.exists(csv_path):
-        seed_nbs_from_csv(conn, csv_path)
-    else:
-        print(f"CSV file not found at {csv_path}, skipping NBS import for new cities")
     
     # Compute scores for all cities
     from ..scoring.factors import compute_and_store_all_scores
