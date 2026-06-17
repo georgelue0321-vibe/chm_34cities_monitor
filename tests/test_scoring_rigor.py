@@ -127,12 +127,17 @@ def test_missing_transaction_does_not_zero_score():
     
     # Seeding: Stabilizing price, active storage, but NO transactions
     cursor.execute("INSERT INTO market_index (city_id, date, listings, price_sqm) VALUES (?, ?, 100000, 25000)", (city, test_month))
-    cursor.execute("""
-    INSERT INTO city_price_index_monthly (
-        city_id, city_name, month, new_home_mom, new_home_yoy, resale_home_mom, resale_home_yoy, 
-        source, source_url, collected_at, data_status, is_score_eligible
-    ) VALUES (?, '成都', ?, 100.0, 95.0, 100.0, 95.0, 'NBS', '', datetime('now'), 'official', 1)
-    """, (city, test_month))
+    
+    # Insert 6 months of NBS data for calc_s_price (requires >= 6 months history)
+    # Must include test_month and 5 months before it
+    for i, month in enumerate(["2025-12", "2026-01", "2026-02", "2026-03", "2026-04", "2026-05"]):
+        mom = 99.5 + i * 0.1  # Gradually stabilizing
+        cursor.execute("""
+        INSERT OR REPLACE INTO city_price_index_monthly (
+            city_id, city_name, month, new_home_mom, new_home_yoy, resale_home_mom, resale_home_yoy, 
+            source, source_url, collected_at, data_status, is_score_eligible
+        ) VALUES (?, '成都', ?, 100.0, 95.0, ?, 95.0, 'NBS', '', datetime('now'), 'official', 1)
+        """, (city, month, mom))
     
     # Active storage acquisition event
     cursor.execute("""

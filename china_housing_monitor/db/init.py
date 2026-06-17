@@ -314,6 +314,16 @@ def init_db(force_reset=False):
         """, (new_fz_hash, new_fz_title))
     conn.commit()
 
+    # Normalize market_index: listings=-1 should not be score eligible
+    cursor.execute("""
+    UPDATE market_index 
+    SET is_score_eligible = 0 
+    WHERE listings = -1 AND is_score_eligible = 1
+    """)
+    if cursor.rowcount > 0:
+        print(f"Migration: Fixed {cursor.rowcount} records where listings=-1 but is_score_eligible=1")
+    conn.commit()
+
     from .seed import seed_historical_data
     seed_historical_data(conn)
     

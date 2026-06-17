@@ -12,6 +12,7 @@ import argparse
 import sqlite3
 import sys
 
+from . import __version__
 from .config import DB_PATH, REPORT_PATH
 from .db.init import init_db
 from .crawler import update_all_cities_market_data
@@ -27,7 +28,7 @@ def main():
     args = parser.parse_args()
 
     print("=" * 60)
-    print("China Housing Monitor (CHM) v2.0.0")
+    print(f"China Housing Monitor (CHM) v{__version__}")
     print("=" * 60)
 
     # Step 1: Initialize database

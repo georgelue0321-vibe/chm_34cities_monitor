@@ -81,8 +81,8 @@ update_all_cities_market_data()
 **工作原理**：
 - 目标：`{city}.lianjia.com/ershoufang/`
 - 提取：挂牌总量、featured 房源 unitPrice 均值
-- 失败回退：沿用上月价格 × 随机系数（0.990-0.997）
-- 状态标记：`scraped`（成功）/ `synthetic`（回退）/ `missing`（无数据）
+- 失败策略：若爬取失败（被屏蔽、超时等），该城市当月数据不插入
+- 状态标记：`scraped`（成功）/ `missing`（失败或无数据）
 
 **数据格式**（`market_index` 表）：
 
@@ -90,15 +90,19 @@ update_all_cities_market_data()
 |------|------|
 | city_id | 城市 ID |
 | date | 月份 YYYY-MM |
-| listings | 挂牌量（-1 表示被屏蔽） |
+| listings | 挂牌量（-1 表示被屏蔽或无数据） |
 | price_sqm | 均价 元/㎡ |
-| data_status | scraped / synthetic / missing |
-| source_label | 链家 / 算法回退 |
+| data_status | scraped / missing |
+| source_label | 链家 |
 
 **已知问题**：
 - 链家/贝壳对自动化访问有反爬机制
-- 大部分城市会被屏蔽，返回 synthetic 数据
-- synthetic 偏差约 0.3-1%，对评分影响很小
+- 大部分城市会被屏蔽，返回 missing 数据
+- 不生成 synthetic 或 extrapolated 数据
+
+**注意**：
+- 历史数据库中可能存在早期生成的 synthetic 数据（2024年之前）
+- 这些数据已标记为 `data_status='estimated'`，不参与评分
 
 ---
 
@@ -367,7 +371,7 @@ python3 scratch/verify_scoring_rigor.py
 ## 4. 常见问题
 
 ### Q: 链家爬虫被屏蔽怎么办？
-A: 正常现象。爬虫会自动回退到上月价格 × 随机系数，偏差 <1%，对评分影响极小。
+A: 正常现象。被屏蔽的城市会标记为 `missing`，不生成 synthetic 数据。评分使用历史数据或被标记为数据不足。
 
 ### Q: NBS 数据延迟怎么办？
 A: NBS 通常每月 15-18 日发布上月数据。延迟期间评分使用最新可用数据。
