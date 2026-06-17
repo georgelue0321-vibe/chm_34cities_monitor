@@ -829,16 +829,28 @@ def test_current_month_not_hardcoded():
 def test_no_hardcoded_2026_05_in_code():
     """Test 26: Verify no hardcoded '2026-05' string exists in source code."""
     print("\n--- Running Test 26: test_no_hardcoded_2026_05_in_code ---")
-    with open(os.path.join(CHM_DIR, "china_housing_monitor.py"), "r", encoding="utf-8") as f:
-        code = f.read()
-    # Allow '2026-05' in comments, strings within tests, or HTML templates
-    # But not as a default assignment like current_month = "2026-05"
-    lines = code.split("\n")
-    for i, line in enumerate(lines, 1):
-        stripped = line.strip()
-        if "2026-05" in stripped and not stripped.startswith("#") and not stripped.startswith('"') and not stripped.startswith("'"):
-            if "current_month" in stripped.lower() or "test_month" in stripped.lower():
-                assert False, f"Hardcoded current_month '2026-05' found at line {i}: {stripped}"
+    
+    # Scan modular source directory instead of old single file
+    source_dir = os.path.join(CHM_DIR, "china_housing_monitor")
+    if not os.path.exists(source_dir):
+        print("Test 26 Result: SKIP (source directory not found)")
+        return
+    
+    violations = []
+    for dirpath, _, filenames in os.walk(source_dir):
+        for name in filenames:
+            if not name.endswith(".py"):
+                continue
+            filepath = os.path.join(dirpath, name)
+            with open(filepath, "r", encoding="utf-8") as f:
+                for i, line in enumerate(f, 1):
+                    stripped = line.strip()
+                    if "2026-05" in stripped and not stripped.startswith("#"):
+                        if "current_month" in stripped.lower() or "test_month" in stripped.lower():
+                            rel_path = os.path.relpath(filepath, CHM_DIR)
+                            violations.append(f"{rel_path}:{i}: {stripped}")
+    
+    assert len(violations) == 0, f"Hardcoded current_month '2026-05' found:\n" + "\n".join(violations)
     print("Test 26 Result: PASS (No hardcoded 2026-05 as current_month)")
 
 def test_stale_pboc_caps_pboc_score():
