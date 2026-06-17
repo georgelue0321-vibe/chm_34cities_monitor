@@ -50,11 +50,11 @@ from china_housing_monitor.data.nbs_api import fetch_price_index
 records = fetch_price_index(months=36)
 ```
 
-**⚠️ 问题**: `--fetch-nbs` 未纳入默认管道，需手动执行
+**使用方式**: 每月手动执行 `python3 -m china_housing_monitor --fetch-nbs`，未纳入默认管道（设计如此，避免每次运行都调 API）
 
 ### 待办
 
-- [ ] 将 `--fetch-nbs` 纳入默认管道（在 `__main__.py` 中默认执行）
+- [x] ~~将 `--fetch-nbs` 纳入默认管道~~ — 当前手动执行方式 works fine，不改
 - [ ] 验证 2025-02 缺失月是否已从 API 补回
 - [ ] 确认 34 城全部有 ≥6 个月数据（S_Price 最低要求）
 
@@ -233,7 +233,7 @@ python3 skills/storage-event-scanner/scripts/scanner.py --all
 **数据表**: `pboc_global`
 **关键字段**: `balance_billion`、`percentage`、`date`
 
-### 当前状态: ⚠️ 数据陈旧（>18 个月）
+### 当前状态: 数据已终止（最后更新 2024-09-30）
 
 已录入 3 条记录：
 
@@ -267,9 +267,7 @@ python3 skills/storage-event-scanner/scripts/scanner.py --all
 
 ### 待办
 
-- [ ] 搜索 2024-Q4、2025-Q1/Q2/Q3/Q4、2026-Q1 央行货币政策执行报告
-- [ ] 提取最新余额和使用率数据
-- [ ] 更新 `pboc_global` 表
+- [x] ~~搜索最新央行报告~~ — 300亿再贷款工具大概率已执行完毕，央行不再单独披露余额，维持 2024-09 数据作为终态
 
 ---
 
@@ -347,7 +345,7 @@ python3 skills/storage-event-scanner/scripts/scanner.py --all
 | 链家挂牌数据 | 每次运行 | 爬虫 | `python3 -m china_housing_monitor` |
 | 住建局成交 | 暂无 | 手动 | — |
 | 收储事件 | 每月 | Skill扫描 | `python3 skills/storage-event-scanner/scripts/scanner.py --all` |
-| 央行再贷款 | 每季度 | 手动 | — |
+| 央行再贷款 | 大概率已终止 | 手动 | 央行不再单独披露，维持 2024-09 数据 |
 | 专业意见 | 每季度 | 手动 | — |
 
 ---
@@ -356,8 +354,7 @@ python3 skills/storage-event-scanner/scripts/scanner.py --all
 
 | 优先级 | 数据项 | 影响 | 建议动作 |
 |--------|--------|------|----------|
-| P0 | `--fetch-nbs` 纳入默认管道 | 评分准确性 | 修改 `__main__.py` |
-| P1 | PBOC 数据更新 | 10% 因子封顶 | 手动提取央行报告 |
+| P1 | PBOC 数据更新 | 10% 因子封顶 | 大概率已无新数据，维持现状 |
 | P2 | 成交数据（上海/杭州等） | 验证门控 | 评估 `fangdi.com.cn` 可爬性 |
 | P3 | 收储事件更新 | 30% 因子时效性 | 运行 scanner |
 | P4 | 链家反爬增强 | 数据稳定性 | 添加 delay + UA 轮换 |
