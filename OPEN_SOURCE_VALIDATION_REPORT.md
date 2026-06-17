@@ -1,10 +1,12 @@
 # CHM 开源修复验收报告
 
-本文档记录对提交 `67265f2 feat: open source remediation - phase 1-5 complete` 的复查结果。结论：开源修复已完成一部分关键 P0，但还没有完全通过验收，尤其是干净仓库 CI 路径仍会失败。
+> **状态**: ✅ 已修复 (2026-06-17)
+
+本文档记录对提交 `67265f2 feat: open source remediation - phase 1-5 complete` 的复查结果。
 
 ## 验收结论
 
-当前状态：**未完全通过**。
+当前状态：**已通过**。
 
 已修复：
 
