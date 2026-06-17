@@ -1,0 +1,36 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Compile check
+        run: python3 -m compileall -q china_housing_monitor skills/storage-event-scanner/scripts
+
+      - name: Init DB (smoke test)
+        run: python3 -c "import tempfile, os; import china_housing_monitor.config as c; import china_housing_monitor.db.init as i; p=os.path.join(tempfile.mkdtemp(), 'fresh.sqlite'); c.DB_PATH=p; i.DB_PATH=p; i.init_db(); print('init_db OK:', p)"
+
+      - name: Generate HTML (smoke test)
+        run: python3 -m china_housing_monitor --no-scrape
+
+      - name: Run scoring tests
+        run: python3 tests/test_scoring_rigor.py
+
+      - name: Run scanner dedup tests
+        run: python3 skills/storage-event-scanner/tests/test_deduplication.py
+
+      - name: Run scanner contract tests
+        run: python3 skills/storage-event-scanner/tests/test_chm_contract.py

@@ -13,11 +13,13 @@ node_modules/
 
 # Generated output
 chm.html
+cd_price_trend.html
 
 # Data files
 *.csv
 *.json
 !skills/**/*.json
+!china_housing_monitor/report/static/china.json
 
 # OS
 .DS_Store

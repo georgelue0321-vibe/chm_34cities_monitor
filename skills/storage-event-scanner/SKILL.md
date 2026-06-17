@@ -8,9 +8,65 @@ description: CHM 项目专用收储事件扫描器。Use when running weekly inc
 
 CHM 项目专用收储事件入口，用于寻找并审核"收购已建成/存量商品房用作保障性住房"的公开事件。目标不是多抓，而是保护 `storage_execution_events` 的数据质量。
 
+## Prerequisites
+
+**必须在执行任何扫描命令前检查以下前置条件。**
+
+### 1. browser-use CLI
+
+```bash
+# 检查是否已安装
+browser-use doctor
+
+# 如果未安装
+pip install "browser-use[core]"
+# 或
+uv add "browser-use[core]"
+```
+
+- 官方仓库：https://github.com/browser-use/browser-use
+- 文档：https://docs.browser-use.com
+
+### 2. Chrome/Chromium with Remote Debugging
+
+browser-use 需要连接到运行中的 Chrome 实例：
+
+```bash
+# 方式 1：启动 Chrome 并开启远程调试
+/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --remote-debugging-port=9222
+
+# 方式 2：在 Chrome 中访问
+chrome://inspect/#remote-debugging
+```
+
+### 3. Headed 模式要求
+
+**本项目必须使用 `--headed` 模式**，原因：
+- 百度搜索需要渲染 JavaScript 动态内容
+- 部分政府网站需要处理验证码
+- Headless 模式会被反爬机制拦截
+
+```bash
+# 正确
+browser-use --headed open "https://www.baidu.com"
+
+# 错误（会被拦截）
+browser-use open "https://www.baidu.com"
+```
+
+### 前置条件检查命令
+
+执行扫描前运行：
+
+```bash
+browser-use doctor && browser-use --headed open "https://www.baidu.com" && browser-use close
+```
+
+如果上述命令失败，参考 Troubleshooting 章节。
+
 ## Project Contract
 
-- 项目根目录：`/Users/george/Documents/CHM`
+- 项目根目录：当前仓库根目录
 - 目标库：`china_monitor_db.sqlite`
 - 目标表：`storage_execution_events`
 - 质量日志：`data_quality_log`
@@ -259,14 +315,12 @@ A: 只保留一条 DB 记录：`source_url` 使用最权威来源，其他来源
 默认只做 dry-run，不写 DB：
 
 ```bash
-cd /Users/george/Documents/CHM
 python3 skills/storage-event-scanner/scripts/db_importer.py skills/storage-event-scanner/results/weekly/YYYY-MM-DD/reviewed.json
 ```
 
 确认 dry-run 无误后再写入：
 
 ```bash
-cd /Users/george/Documents/CHM
 python3 skills/storage-event-scanner/scripts/db_importer.py skills/storage-event-scanner/results/weekly/YYYY-MM-DD/reviewed.json --commit
 ```
 
@@ -278,7 +332,6 @@ commit 前 importer 会备份数据库。导入时会同时写：
 导入成功后再生成页面：
 
 ```bash
-cd /Users/george/Documents/CHM
 python3 -m china_housing_monitor --no-scrape
 ```
 
@@ -303,7 +356,6 @@ v2.x 的自动化 scanner.py 仍然可用，但效果不如手动搜索。适用
 - 批量生成候选列表
 
 ```bash
-cd /Users/george/Documents/CHM
 python3 skills/storage-event-scanner/scripts/scanner.py --all --run-date YYYY-MM-DD
 ```
 
@@ -312,7 +364,6 @@ python3 skills/storage-event-scanner/scripts/scanner.py --all --run-date YYYY-MM
 ## Tests
 
 ```bash
-cd /Users/george/Documents/CHM
 python3 skills/storage-event-scanner/tests/test_deduplication.py
 python3 skills/storage-event-scanner/tests/test_chm_contract.py
 python3 skills/storage-event-scanner/scripts/scanner.py --help

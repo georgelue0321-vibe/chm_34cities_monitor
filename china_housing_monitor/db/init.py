@@ -60,7 +60,8 @@ def init_db(force_reset=False):
         date VARCHAR(20) PRIMARY KEY,
         balance_billion REAL NOT NULL,
         percentage REAL NOT NULL,
-        source VARCHAR(100)
+        source VARCHAR(100),
+        collected_at TEXT
     )
     """)
     
@@ -77,6 +78,7 @@ def init_db(force_reset=False):
     add_column_if_not_exists(cursor, "market_index", "data_status", "TEXT", "'scraped'")
     add_column_if_not_exists(cursor, "market_index", "is_score_eligible", "INTEGER", "1")
     add_column_if_not_exists(cursor, "market_index", "source_label", "TEXT", "'链家'")
+    add_column_if_not_exists(cursor, "market_index", "collected_at", "TEXT")
     
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS professional_opinions (
@@ -90,6 +92,7 @@ def init_db(force_reset=False):
         UNIQUE(city_id, institution)
     )
     """)
+    add_column_if_not_exists(cursor, "professional_opinions", "collected_at", "TEXT")
 
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS city_price_index_monthly (
@@ -246,7 +249,7 @@ def init_db(force_reset=False):
         ("2024-06-30", 12.1, 4.03, "央行二季度结构性货币政策工具披露", "2024-06-30 00:00:00"),
         ("2024-09-30", 16.2, 5.4, "央行三季度货币政策执行报告披露", "2024-09-30 00:00:00")
     ]
-    cursor.executemany("INSERT OR IGNORE INTO pboc_global VALUES (?, ?, ?, ?, ?)", pboc_history)
+    cursor.executemany("INSERT OR IGNORE INTO pboc_global (date, balance_billion, percentage, source, collected_at) VALUES (?, ?, ?, ?, ?)", pboc_history)
     conn.commit()
 
     try:

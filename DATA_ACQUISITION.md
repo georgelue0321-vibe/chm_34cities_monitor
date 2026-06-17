@@ -128,18 +128,18 @@ JSON.stringify({
 
 | 字段 | 说明 |
 |------|------|
-| report_date | 报告日期 YYYY-MM-DD |
-| facility_name | 保障性住房再贷款 |
-| total_quota | 总额度（万亿元） |
-| balance | 余额（万亿元） |
-| used_pct | 使用率 % |
+| date | 报告日期 YYYY-MM-DD |
+| balance_billion | 余额（亿元） |
+| percentage | 使用率 % |
+| source | 数据来源说明 |
+| collected_at | 落库时间 |
 
 **导入 SQL**：
 
 ```sql
 INSERT OR REPLACE INTO pboc_global 
-(report_date, facility_name, total_quota, balance, used_pct)
-VALUES ('2025-03-31', '保障性住房再贷款', 6.3, 5.9, 93.7);
+(date, balance_billion, percentage, source, collected_at)
+VALUES ('2025-03-31', 5900.0, 93.7, '央行一季度货币政策执行报告', datetime('now'));
 ```
 
 **数据发布节奏**：每季度末发布，通常滞后 1-2 个月。

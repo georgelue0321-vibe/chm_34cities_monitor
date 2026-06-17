@@ -9,7 +9,7 @@
 ## 📂 1. 项目文件组成
 
 ```
-china_housing_monitor/              ← Python 包 (v2.0.2)
+china_housing_monitor/              ← Python 包 (v0.10.0)
 ├── __init__.py                     ← 包初始化
 ├── __main__.py                     ← CLI 入口 (argparse)
 ├── config.py                       ← 常量、路径、34城定义、评分参数
@@ -33,9 +33,12 @@ skills/storage-event-scanner/       ← 收储事件智能扫描器
 ├── templates/                      ← 来源优先级配置
 └── tests/                          ← 去重测试
 
+tests/                              ← 测试套件
+├── test_scoring_rigor.py           ← 评分验证测试 (31 项)
+└── test_monitor_db.sqlite          ← 测试用临时 DB (gitignored)
+
 china_monitor_db.sqlite             ← SQLite 数据库 (gitignored)
 chm.html                            ← 生成的 SPA 仪表盘 (gitignored)
-scratch/verify_scoring_rigor.py     ← 验证测试套件 (31 项)
 ```
 
 ---
@@ -98,8 +101,9 @@ python3 -m china_housing_monitor --init-only
 
 ### 验证测试
 ```bash
-python3 scratch/verify_scoring_rigor.py
-# 31/31 测试全部通过
+python3 tests/test_scoring_rigor.py
+python3 skills/storage-event-scanner/tests/test_deduplication.py
+python3 skills/storage-event-scanner/tests/test_chm_contract.py
 ```
 
 ### 本地预览
@@ -110,7 +114,57 @@ python3 -m http.server 8080
 
 ---
 
-## 📊 5. 数据获取
+## 📦 5. 数据采集依赖（可选）
+
+CHM 核心代码**零依赖**，仅需 Python 3.11+。实时数据采集需要额外工具：
+
+| 工具 | 用途 | 必需？ |
+|------|------|--------|
+| [browser-use](https://github.com/browser-use/browser-use) | 浏览器自动化（收储扫描、央行数据、中指数据） | 数据更新时 |
+| Chrome/Chromium | browser-use 的浏览器后端 | 数据更新时 |
+
+<details>
+<summary>安装 browser-use</summary>
+
+```bash
+pip install "browser-use[core]"
+# 或
+uv add "browser-use[core]"
+```
+
+验证安装：
+```bash
+browser-use doctor
+```
+
+**为什么需要"有头浏览器"？**
+
+CHM 的数据采集目标（百度、央行官网、中指研究院）会检测并拦截无头浏览器。使用 `--headed` 模式可以：
+- 正常渲染 JavaScript 动态内容
+- 手动处理验证码（如需要）
+- 避免被反爬机制拦截
+
+</details>
+
+<details>
+<summary>不安装 browser-use 也能用吗？</summary>
+
+**可以。** 以下功能不需要 browser-use：
+- ✅ 初始化数据库：`python3 -m china_housing_monitor --init-only`
+- ✅ 生成 HTML 报告：`python3 -m china_housing_monitor --no-scrape`
+- ✅ 运行测试：`python3 tests/test_scoring_rigor.py`
+- ✅ 查看预生成的 `chm.html`
+
+以下功能需要 browser-use：
+- ❌ 收储事件扫描（每周增量更新）
+- ❌ 央行再贷款数据提取（每季度）
+- ❌ 中指研究院数据提取（每月）
+
+</details>
+
+---
+
+## 📊 6. 数据获取
 
 详见 [DATA_ACQUISITION.md](DATA_ACQUISITION.md) — 各数据源的获取方式、格式、导入命令。
 
@@ -128,6 +182,7 @@ python3 -m http.server 8080
 
 | 版本 | 日期 | 说明 |
 |------|------|------|
+| v0.10.0 | 2026-06-17 | 开源准备：修复 schema、添加 LICENSE、清理路径、统一术语 |
 | v0.9 | 2026-06-15 | 中指数据导入、数据获取指南、34城评分更新 |
 | v0.8 | 2026-06-02 | 34 城扩展、ECharts 地图、收储扫描器 Skill、模块化重构、移动端 UI 优化 |
 | v0.7 | 2026-05-31 | 移动端布局重构、Tooltip 优化、文字修复、告一段落工作流 |
