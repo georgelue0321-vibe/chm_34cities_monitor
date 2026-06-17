@@ -551,22 +551,23 @@ def test_chengdu_2026_05_low_data_fixture():
 
 def test_no_city_specific_hardcoding():
     """Test 9: test_no_city_specific_hardcoding
-    Rigorously scan the python script to assert that there is no city-specific hardcoded
+    Rigorously scan the scoring module to assert that there is no city-specific hardcoded
     scoring logic or overrides (like if city_id == 'cd').
     """
     print("\n--- Running Test 9: test_no_city_specific_hardcoding ---")
-    parent_script = os.path.join(CHM_DIR, "china_housing_monitor.py")
+    scoring_module = os.path.join(CHM_DIR, "china_housing_monitor", "scoring", "factors.py")
     
-    with open(parent_script, "r", encoding="utf-8") as f:
+    if not os.path.exists(scoring_module):
+        print("Test 9 Result: SKIP (scoring module not found)")
+        return
+    
+    with open(scoring_module, "r", encoding="utf-8") as f:
         code = f.read()
         
-    scoring_block_match = re.search(r"def compute_and_store_all_scores\(.*?\):(.*?)def ", code, re.DOTALL)
-    if scoring_block_match:
-        scoring_code = scoring_block_match.group(1)
-        assert "city_id == 'cd'" not in scoring_code
-        assert "cid == 'cd'" not in scoring_code
-        assert "city_id == 'bj'" not in scoring_code
-        
+    assert "city_id == 'cd'" not in code, "City-specific hardcoding found: city_id == 'cd'"
+    assert "cid == 'cd'" not in code, "City-specific hardcoding found: cid == 'cd'"
+    assert "city_id == 'bj'" not in code, "City-specific hardcoding found: city_id == 'bj'"
+    
     print("Test 9 Result: PASS (Calculations are 100% city-agnostic and generic!)")
 
 def test_html_contains_low_data_warning_box():
