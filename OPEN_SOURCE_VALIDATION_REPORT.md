@@ -214,7 +214,7 @@ WHERE listings = -1;
 
 发现：
 
-- `china_housing_monitor/__init__.py`：`__version__ = "0.10.0"`
+- `china_housing_monitor/__init__.py`：`__version__ = "1.0.0"`
 - `china_housing_monitor/__main__.py`：CLI 仍打印 `China Housing Monitor (CHM) v2.0.0`
 - `china_housing_monitor/report/templates/base.html`：页脚仍显示 `CHM v0.9`
 - `DATA_SOURCES.md`：仍写 `基于 v0.9.3 代码分析`
@@ -228,7 +228,7 @@ WHERE listings = -1;
 
 - CLI 从 `china_housing_monitor.__version__` 读取版本
 - HTML footer 用模板占位符或常量注入版本
-- 文档统一为当前开源版本，例如 `v0.10.0`
+- 文档统一为当前开源版本 `v1.0.0`
 
 ### P1-2：数据文档与链家爬虫实际行为不一致
 
@@ -279,7 +279,7 @@ python3 -m china_housing_monitor --no-scrape
 
 1. 修复 `tests/test_scoring_rigor.py` 的 fresh DB fixture 问题，确保 CI 能过
 2. 修复或明确 `market_index.is_score_eligible` 对 `listings=-1` 的语义
-3. 统一版本号到 `0.10.0`
+3. 统一版本号到 `1.0.0`
 4. 更新 `DATA_ACQUISITION.md` 中链家失败策略
 5. 再次运行干净仓库验收命令
 

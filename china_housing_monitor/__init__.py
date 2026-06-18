@@ -8,4 +8,4 @@ A modular Python data pipeline that:
 4. Compiles everything into a standalone single-file HTML SPA
 """
 
-__version__ = "0.10.0"
+__version__ = "1.0.0"

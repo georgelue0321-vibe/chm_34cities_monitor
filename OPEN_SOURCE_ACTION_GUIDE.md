@@ -325,7 +325,7 @@ python3 tests/test_scoring_rigor.py
 
 - 以 `china_housing_monitor/__init__.py` 的 `__version__` 为唯一来源
 - CLI、页脚、README 都引用同一版本
-- 开源首版可命名为 `v0.10.0` 或 `v1.0.0-alpha`
+- 开源首版命名为 `v1.0.0`
 - 全仓搜索并消除旧术语，尤其是“True Bottom”“真底确认”“18 城/18 cities”等容易误导用户的表达
 - 将 `DATA_ACQUISITION.md`、`DATA_SOURCES.md`、实际 SQLite schema 三者对齐
 

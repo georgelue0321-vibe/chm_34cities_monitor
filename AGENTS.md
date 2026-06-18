@@ -53,7 +53,7 @@ python3 -m http.server 8080
 ## Architecture
 
 ```
-china_housing_monitor/                  ← Python package (v0.10.0)
+china_housing_monitor/                  ← Python package (v1.0.0)
 ├── __init__.py                         ← Package init, version
 ├── __main__.py                         ← CLI entry point (argparse)
 ├── compat.py                           ← Backward compatibility shim for tests
