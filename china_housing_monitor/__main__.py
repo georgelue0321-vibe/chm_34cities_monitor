@@ -16,6 +16,7 @@ from . import __version__
 from .config import DB_PATH, REPORT_PATH
 from .db.init import init_db
 from .crawler import update_all_cities_market_data
+from .scoring.factors import compute_and_store_all_scores
 from .report.generator import generate_html_report
 
 
@@ -32,16 +33,16 @@ def main():
     print("=" * 60)
 
     # Step 1: Initialize database
-    print("\n[1/3] Initializing database...")
+    print("\n[1/5] Initializing database...")
     init_db()
 
     if args.init_only:
         print("\nDatabase initialized. Exiting (--init-only).")
         return
 
-    # Step 1.5: Fetch NBS data from API (optional)
+    # Step 2: Fetch NBS data from API (optional)
     if args.fetch_nbs:
-        print("\n[1.5/3] Fetching NBS price index from East Money API...")
+        print("\n[2/5] Fetching NBS price index from East Money API...")
         from .data.nbs_api import fetch_and_update
         conn = sqlite3.connect(DB_PATH)
         try:
@@ -49,16 +50,26 @@ def main():
             print(f"  NBS data update complete: {total} records, {inserted} new, {updated} updated")
         finally:
             conn.close()
+    else:
+        print("\n[2/5] Skipping NBS data fetch (--fetch-nbs not specified)")
 
-    # Step 2: Scrape market data
+    # Step 3: Scrape market data
     if not args.no_scrape:
-        print("\n[2/3] Scraping market data from Lianjia...")
+        print("\n[3/5] Scraping market data from Lianjia...")
         update_all_cities_market_data()
     else:
-        print("\n[2/3] Skipping scraping (--no-scrape)")
+        print("\n[3/5] Skipping scraping (--no-scrape)")
 
-    # Step 3: Generate HTML report
-    print("\n[3/3] Generating HTML report...")
+    # Step 4: Compute scores for all cities
+    print("\n[4/5] Computing Bottom Signal Scores...")
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        compute_and_store_all_scores(conn)
+    finally:
+        conn.close()
+
+    # Step 5: Generate HTML report
+    print("\n[5/5] Generating HTML report...")
     generate_html_report()
 
     print("\n" + "=" * 60)

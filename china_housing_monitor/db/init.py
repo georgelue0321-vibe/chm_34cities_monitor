@@ -327,8 +327,4 @@ def init_db(force_reset=False):
     from .seed import seed_historical_data
     seed_historical_data(conn)
     
-    # Compute scores for all cities
-    from ..scoring.factors import compute_and_store_all_scores
-    compute_and_store_all_scores(conn)
-    
     conn.close()
