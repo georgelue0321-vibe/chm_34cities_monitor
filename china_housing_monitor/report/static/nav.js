@@ -19,6 +19,7 @@ function onCityChange(cityId, scrollToTimeline = false) {
     updateNavButtons(cityId);
     try { renderRankings(window.MONITOR_DB.rankings, cityId); } catch (err) { console.error("Error rendering rankings:", err); }
     try { renderCityDashboard(cityId); } catch (err) { console.error("Error rendering city dashboard:", err); }
+    try { renderIncomeBlock(cityId); } catch (err) { console.error("Error rendering income block:", err); }
     const container = document.getElementById('nav-container');
     if (container) container.classList.remove('is-expanded');
     if (scrollToTimeline) {

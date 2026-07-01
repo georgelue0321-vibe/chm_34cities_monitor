@@ -357,7 +357,207 @@ def seed_historical_data(conn):
         ''', (cid, date, inst, opinion, cons))
     conn.commit()
     print(f'Seeded {len(opinions_data)} professional opinions for 34 cities.')
-    
+
+    seed_income_data(conn)
+
     print('Pre-seeding completed successfully!')
+
+
+def seed_income_data(conn):
+    """Seed verified per capita disposable income and GDP data from city statistical communiqués.
+
+    Data sources: Each city's 2023/2024 National Economic and Social Development Statistical Communiqué.
+    Only verified data is included. Missing data is NULL (never fabricated).
+
+    Per capita income = 居民人均可支配收入 (全体居民)
+    Per capita GDP = 人均地区生产总值
+    """
+    cursor = conn.cursor()
+
+    # Format: (city_id, year, per_capita_income, urban_income, rural_income, per_capita_gdp)
+    # Sources verified 2026-06-24
+    income_data = [
+        # === Beijing 北京 ===
+        # Source: 北京市2023年统计公报 (2024-03-21), 北京市2024年统计公报 (2025-03-20)
+        ("bj", 2023, 81752, 88639, 41242, 200270),
+        ("bj", 2024, 85415, 92464, 39856, 228000),
+
+        # === Shanghai 上海 ===
+        # Source: 上海市2023年统计公报 (2024-03-21), 上海市2024年统计公报 (2025-03-25)
+        ("sh", 2023, 84834, 90952, 43176, 189800),
+        ("sh", 2024, 88366, 93095, 45644, 216800),
+
+        # === Shenzhen 深圳 ===
+        # Source: 深圳市2023年统计公报 (2024-04-28), 深圳市2024年统计公报 (2025-05-22)
+        ("sz", 2023, 76910, None, None, 194500),
+        ("sz", 2024, 81123, None, None, 206800),
+
+        # === Guangzhou 广州 ===
+        # Source: 广州市统计局 (2025-01-27), 广州市2024年统计公报
+        ("gz", 2023, 76849, 83088, 38597, 157000),
+        ("gz", 2024, 80716, 83436, 40914, 164171),
+
+        # === Chengdu 成都 ===
+        # Source: 成都市2023年统计公报 (2024-03-30), 成都市2024年统计公报 (2025-03-28)
+        ("cd", 2023, 48593, 53565, 27086, 103465),
+        ("cd", 2024, 51836, 57258, 28943, 109436),
+
+        # === Chongqing 重庆 ===
+        # Source: 重庆市2023年统计公报 (2024-03-27), 重庆市2024年统计公报 (2025-04-25)
+        ("cq", 2023, 37595, 47435, 20680, 94500),
+        ("cq", 2024, 39624, 49701, 21890, 100889),
+
+        # === Hangzhou 杭州 ===
+        # Source: 浙江省统计局2024年数据 (2025-02-13), 杭州市2024年统计公报
+        ("hz", 2023, 73797, 80587, 45183, 162000),
+        ("hz", 2024, 76777, 83057, 47206, 173867),
+
+        # === Wuhan 武汉 ===
+        # Source: 武汉市2024年统计公报 (2025-04-03)
+        ("wh", 2023, 57126, 60953, 31560, 145000),
+        ("wh", 2024, 59732, 63692, 33166, 153037),
+
+        # === Xi'an 西安 ===
+        # Source: 西安市2023年统计公报, 西安市2024年统计公报 (PDF from 陕西省统计局)
+        ("xa", 2023, 42818, None, None, 95500),
+        ("xa", 2024, 45082, None, None, 101485),
+
+        # === Nanjing 南京 ===
+        # Source: 南京市2023年统计公报, 南京市2024年统计公报
+        ("nj", 2023, 72112, 78560, 36800, 183000),
+        ("nj", 2024, 75180, 81800, 38500, 193483),
+
+        # === Tianjin 天津 ===
+        # Source: 天津市2024年统计公报 (天津政务网)
+        ("tj", 2023, 51271, None, None, 125000),
+        ("tj", 2024, 53581, None, None, 132143),
+
+        # === Changsha 长沙 ===
+        # Source: 长沙市2024年统计公报
+        ("cs", 2023, 60698, None, None, None),
+        ("cs", 2024, 63660, None, None, None),
+
+        # === Hefei 合肥 ===
+        # Source: 合肥市2024年统计公报
+        ("hf", 2023, 53227, None, None, None),
+        ("hf", 2024, 55832, None, None, None),
+
+        # === Zhengzhou 郑州 ===
+        # Source: 郑州市2024年统计公报
+        ("zz", 2023, 43825, None, None, None),
+        ("zz", 2024, 45994, None, None, None),
+
+        # === Xiamen 厦门 ===
+        # Source: 厦门市2024年统计公报
+        ("xm", 2023, 71022, None, None, None),
+        ("xm", 2024, 74249, None, None, None),
+
+        # === Qingdao 青岛 ===
+        # Source: 青岛市发改委
+        ("qd", 2023, 57030, None, None, None),
+        ("qd", 2024, 59922, None, None, None),
+
+        # === Ningbo 宁波 ===
+        # Source: 宁波市统计局2024年2月, 宁波市2024年统计公报
+        ("nb", 2023, 71731, None, None, None),
+        ("nb", 2024, 74806, None, None, 186379),
+
+        # === Fuzhou 福州 ===
+        # Source: 福州市2024年统计公报 (福州史志网PDF)
+        ("fz", 2023, 48934, None, None, None),
+        ("fz", 2024, 51460, None, None, None),
+
+        # === Shijiazhuang 石家庄 ===
+        # Source: 石家庄市2024年统计公报 (石家庄市投资促进局)
+        ("sjz", 2023, 37825, None, None, None),
+        ("sjz", 2024, 39871, None, None, None),
+
+        # === Taiyuan 太原 ===
+        # Source: 太原市统计局2024年经济运行情况新闻发布稿
+        ("ty", 2023, 42685, None, None, None),
+        ("ty", 2024, 44671, None, None, None),
+
+        # === Hohhot 呼和浩特 ===
+        # Source: 呼和浩特市2024年统计公报 (呼和浩特市人民政府)
+        ("hhht", 2023, 46945, None, None, None),
+        ("hhht", 2024, 49222, None, None, None),
+
+        # === Shenyang 沈阳 ===
+        # Source: 沈阳市2024年统计公报 (沈阳市统计局PDF)
+        ("sy", 2023, 47458, None, None, None),
+        ("sy", 2024, 49758, None, None, None),
+
+        # === Changchun 长春 ===
+        # Source: 长春市2024年统计公报 (长春市统计局)
+        ("cc", 2023, 32156, None, None, None),
+        ("cc", 2024, 33639, None, None, None),
+
+        # === Harbin 哈尔滨 ===
+        # Source: 哈尔滨市2024年统计公报 (哈尔滨市人民政府PDF) - urban only
+        ("heb", 2023, 44890, 46210, None, None),
+        ("heb", 2024, 47050, 48216, None, None),
+
+        # === Nanchang 南昌 ===
+        # Source: 南昌市统计局 - data not yet verified
+        # ("nc", 2023, None, None, None, None),
+        # ("nc", 2024, None, None, None, None),
+
+        # === Jinan 济南 ===
+        # Source: 济南市统计局 - data not yet verified
+        # ("jn", 2023, None, None, None, None),
+        # ("jn", 2024, None, None, None, None),
+
+        # === Nanning 南宁 ===
+        # Source: 南宁市统计局 - data not yet verified
+        # ("nn", 2023, None, None, None, None),
+        # ("nn", 2024, None, None, None, None),
+
+        # === Haikou 海口 ===
+        # Source: 海口市统计局 - data not yet verified
+        # ("hk", 2023, None, None, None, None),
+        # ("hk", 2024, None, None, None, None),
+
+        # === Guiyang 贵阳 ===
+        # Source: 贵阳市统计局 - data not yet verified
+        # ("gy", 2023, None, None, None, None),
+        # ("gy", 2024, None, None, None, None),
+
+        # === Kunming 昆明 ===
+        # Source: 昆明市统计局 - data not yet verified
+        # ("km", 2023, None, None, None, None),
+        # ("km", 2024, None, None, None, None),
+
+        # === Lanzhou 兰州 ===
+        # Source: 兰州市统计局 - data not yet verified
+        # ("lz", 2023, None, None, None, None),
+        # ("lz", 2024, None, None, None, None),
+
+        # === Xining 西宁 ===
+        # Source: 西宁市统计局 - data not yet verified
+        # ("xn", 2023, None, None, None, None),
+        # ("xn", 2024, None, None, None, None),
+
+        # === Yinchuan 银川 ===
+        # Source: 银川市统计局 - data not yet verified
+        # ("yc", 2023, None, None, None, None),
+        # ("yc", 2024, None, None, None, None),
+
+        # === Urumqi 乌鲁木齐 ===
+        # Source: 乌鲁木齐市统计局 - data not yet verified
+        # ("wlmq", 2023, None, None, None, None),
+        # ("wlmq", 2024, None, None, None, None),
+    ]
+
+    inserted = 0
+    for city_id, year, income, urban, rural, gdp in income_data:
+        cursor.execute("""
+        INSERT OR REPLACE INTO city_income_yearly
+            (city_id, year, per_capita_income, urban_income, rural_income, per_capita_gdp, source_label, collected_at)
+        VALUES (?, ?, ?, ?, ?, ?, '统计局公报', datetime('now'))
+        """, (city_id, year, income, urban, rural, gdp))
+        inserted += 1
+
+    conn.commit()
+    print(f'Seeded {inserted} income data records for {len(income_data) // 2} cities.')
 
 

@@ -327,3 +327,96 @@ function renderCityDashboard(cityId) {
     try { renderScoreHistoryChart(city.score_history); } catch (e) { console.error("Error rendering Score History Chart:", e); }
     try { renderScrapedCharts(city.market_history, cityId, city); } catch (e) { console.error("Error rendering Scraped Charts:", e); }
 }
+
+
+function renderIncomeBlock(cityId) {
+    const db = window.MONITOR_DB;
+    const city = db.cities[cityId];
+    const block = document.getElementById('incomeBlock');
+    if (!block) return;
+
+    const incomeHistory = city.income_history || [];
+    if (incomeHistory.length === 0) {
+        block.classList.add('hidden');
+        return;
+    }
+
+    block.classList.remove('hidden');
+
+    const latest = incomeHistory[incomeHistory.length - 1];
+    const prev = incomeHistory.length >= 2 ? incomeHistory[incomeHistory.length - 2] : null;
+
+    // Helper: format number
+    const fmt = (v) => v ? (v / 10000).toFixed(2) + '万' : '—';
+    const fmtPct = (curr, prev) => {
+        if (!curr || !prev) return { text: '—', cls: 'text-slate-500' };
+        const pct = ((curr - prev) / prev * 100).toFixed(1);
+        const isUp = pct > 0;
+        return {
+            text: (isUp ? '↑' : '↓') + Math.abs(pct) + '%',
+            cls: isUp ? 'text-rose-400' : 'text-emerald-400'
+        };
+    };
+    const fmtPp = (curr, prev) => {
+        if (!curr || !prev) return { text: '—', cls: 'text-slate-500' };
+        const pp = (curr - prev).toFixed(1);
+        const isUp = pp > 0;
+        return {
+            text: (isUp ? '↑' : '↓') + Math.abs(pp) + 'pp',
+            cls: isUp ? 'text-rose-400' : 'text-emerald-400'
+        };
+    };
+
+    // Per capita income
+    const perCapitaEl = document.getElementById('incomeBlockPerCapita');
+    const perCapitaYoyEl = document.getElementById('incomeBlockPerCapitaYoy');
+    perCapitaEl.innerText = fmt(latest.per_capita_income);
+    const incYoy = fmtPct(latest.per_capita_income, prev?.per_capita_income);
+    perCapitaYoyEl.innerText = incYoy.text;
+    perCapitaYoyEl.className = `text-[12px] font-bold ${incYoy.cls}`;
+
+    // Per capita GDP
+    const gdpEl = document.getElementById('incomeBlockGdp');
+    const gdpYoyEl = document.getElementById('incomeBlockGdpYoy');
+    gdpEl.innerText = fmt(latest.per_capita_gdp);
+    const gdpYoy = fmtPct(latest.per_capita_gdp, prev?.per_capita_gdp);
+    gdpYoyEl.innerText = gdpYoy.text;
+    gdpYoyEl.className = `text-[12px] font-bold ${gdpYoy.cls}`;
+
+    // Income/GDP ratio
+    const ratioEl = document.getElementById('incomeBlockRatio');
+    const ratioYoyEl = document.getElementById('incomeBlockRatioYoy');
+    const latestRatio = (latest.per_capita_income && latest.per_capita_gdp) ?
+        (latest.per_capita_income / latest.per_capita_gdp * 100) : null;
+    const prevRatio = (prev?.per_capita_income && prev?.per_capita_gdp) ?
+        (prev.per_capita_income / prev.per_capita_gdp * 100) : null;
+    ratioEl.innerText = latestRatio ? latestRatio.toFixed(1) + '%' : '—';
+    const ratioYoy = fmtPp(latestRatio, prevRatio);
+    ratioYoyEl.innerText = ratioYoy.text;
+    ratioYoyEl.className = `text-[12px] font-bold ${ratioYoy.cls}`;
+
+    // Horizontal bars with value labels
+    const maxIncome = Math.max(latest.per_capita_income || 0, prev?.per_capita_income || 0, 1);
+    const maxGdp = Math.max(latest.per_capita_gdp || 0, prev?.per_capita_gdp || 0, 1);
+    const maxRatio = Math.max(latestRatio || 0, prevRatio || 0, 1);
+
+    const setBar = (barId, valId, val, max, fmtFn) => {
+        const bar = document.getElementById(barId);
+        const valEl = document.getElementById(valId);
+        if (bar) bar.style.width = Math.round((val / max) * 100) + '%';
+        if (valEl) valEl.innerText = fmtFn ? fmtFn(val) : fmt(val);
+    };
+
+    // Income bars
+    setBar('incomeBar2023_1', 'incomeVal2023_1', prev?.per_capita_income || 0, maxIncome, null);
+    setBar('incomeBar2024_1', 'incomeVal2024_1', latest.per_capita_income || 0, maxIncome, null);
+
+    // GDP bars
+    setBar('incomeBar2023_2', 'incomeVal2023_2', prev?.per_capita_gdp || 0, maxGdp, null);
+    setBar('incomeBar2024_2', 'incomeVal2024_2', latest.per_capita_gdp || 0, maxGdp, null);
+
+    // Ratio bars
+    const fmtRatio = (v) => v ? v.toFixed(1) + '%' : '—';
+    setBar('incomeBar2023_3', 'incomeVal2023_3', prevRatio || 0, maxRatio, fmtRatio);
+    setBar('incomeBar2024_3', 'incomeVal2024_3', latestRatio || 0, maxRatio, fmtRatio);
+}

@@ -145,6 +145,88 @@
     </div>
 </div>
 
+<!-- Income & GDP Block -->
+<div id="incomeBlock" class="lg:col-span-12 order-2 hidden bg-slate-900 border border-slate-800/60 rounded-xl p-4 sm:p-5">
+    <div class="flex items-center justify-between mb-3">
+        <h3 class="text-slate-200 text-sm font-bold uppercase tracking-wider flex items-center gap-2">
+            <i class="fas fa-chart-line text-emerald-400"></i>
+            城市经济基本面
+        </h3>
+        <span class="text-slate-500 text-[11px]">数据来源: 统计局公报</span>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div class="surface-inset border border-slate-800/60 rounded-lg p-3">
+            <span class="text-slate-500 text-[11px] font-semibold uppercase tracking-wider block mb-2">人均可支配收入</span>
+            <div class="flex items-baseline gap-2 mb-2">
+                <span id="incomeBlockPerCapita" class="text-white text-lg font-extrabold">—</span>
+                <span id="incomeBlockPerCapitaYoy" class="text-[12px] font-bold">—</span>
+            </div>
+            <div class="space-y-1.5">
+                <div class="flex items-center gap-2">
+                    <span class="text-[10px] text-slate-500 w-7 flex-shrink-0">2023</span>
+                    <div class="flex-1 h-3 bg-slate-800 rounded-full overflow-hidden">
+                        <div id="incomeBar2023_1" class="h-full bg-slate-500 rounded-full transition-all duration-500" style="width: 0"></div>
+                    </div>
+                    <span id="incomeVal2023_1" class="text-[10px] text-slate-400 w-12 text-right flex-shrink-0">—</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-[10px] text-slate-500 w-7 flex-shrink-0">2024</span>
+                    <div class="flex-1 h-3 bg-slate-800 rounded-full overflow-hidden">
+                        <div id="incomeBar2024_1" class="h-full bg-emerald-500 rounded-full transition-all duration-500" style="width: 0"></div>
+                    </div>
+                    <span id="incomeVal2024_1" class="text-[10px] text-emerald-400 w-12 text-right flex-shrink-0 font-semibold">—</span>
+                </div>
+            </div>
+        </div>
+        <div class="surface-inset border border-slate-800/60 rounded-lg p-3">
+            <span class="text-slate-500 text-[11px] font-semibold uppercase tracking-wider block mb-2">人均GDP</span>
+            <div class="flex items-baseline gap-2 mb-2">
+                <span id="incomeBlockGdp" class="text-white text-lg font-extrabold">—</span>
+                <span id="incomeBlockGdpYoy" class="text-[12px] font-bold">—</span>
+            </div>
+            <div class="space-y-1.5">
+                <div class="flex items-center gap-2">
+                    <span class="text-[10px] text-slate-500 w-7 flex-shrink-0">2023</span>
+                    <div class="flex-1 h-3 bg-slate-800 rounded-full overflow-hidden">
+                        <div id="incomeBar2023_2" class="h-full bg-slate-500 rounded-full transition-all duration-500" style="width: 0"></div>
+                    </div>
+                    <span id="incomeVal2023_2" class="text-[10px] text-slate-400 w-12 text-right flex-shrink-0">—</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-[10px] text-slate-500 w-7 flex-shrink-0">2024</span>
+                    <div class="flex-1 h-3 bg-slate-800 rounded-full overflow-hidden">
+                        <div id="incomeBar2024_2" class="h-full bg-blue-500 rounded-full transition-all duration-500" style="width: 0"></div>
+                    </div>
+                    <span id="incomeVal2024_2" class="text-[10px] text-blue-400 w-12 text-right flex-shrink-0 font-semibold">—</span>
+                </div>
+            </div>
+        </div>
+        <div class="surface-inset border border-slate-800/60 rounded-lg p-3">
+            <span class="text-slate-500 text-[11px] font-semibold uppercase tracking-wider block mb-2">收入/GDP比</span>
+            <div class="flex items-baseline gap-2 mb-2">
+                <span id="incomeBlockRatio" class="text-white text-lg font-extrabold">—</span>
+                <span id="incomeBlockRatioYoy" class="text-[12px] font-bold">—</span>
+            </div>
+            <div class="space-y-1.5">
+                <div class="flex items-center gap-2">
+                    <span class="text-[10px] text-slate-500 w-7 flex-shrink-0">2023</span>
+                    <div class="flex-1 h-3 bg-slate-800 rounded-full overflow-hidden">
+                        <div id="incomeBar2023_3" class="h-full bg-slate-500 rounded-full transition-all duration-500" style="width: 0"></div>
+                    </div>
+                    <span id="incomeVal2023_3" class="text-[10px] text-slate-400 w-12 text-right flex-shrink-0">—</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-[10px] text-slate-500 w-7 flex-shrink-0">2024</span>
+                    <div class="flex-1 h-3 bg-slate-800 rounded-full overflow-hidden">
+                        <div id="incomeBar2024_3" class="h-full bg-amber-500 rounded-full transition-all duration-500" style="width: 0"></div>
+                    </div>
+                    <span id="incomeVal2024_3" class="text-[10px] text-amber-400 w-12 text-right flex-shrink-0 font-semibold">—</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Row 3: Warnings + Rankings -->
 <div class="lg:col-span-4 order-3 bg-slate-900 border border-slate-800/60 rounded-xl p-5 flex flex-col">
     <h3 class="text-slate-200 text-sm font-bold uppercase tracking-wider flex items-center gap-2 mb-4">

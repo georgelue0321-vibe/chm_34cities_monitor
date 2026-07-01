@@ -261,6 +261,22 @@ def fetch_data_payload():
             consensus = "暂无券商研报覆盖，建议关注当地住建局及统计局官方数据。"
             consensus_institution = ""
 
+        # Income & GDP data
+        cursor.execute("""
+        SELECT year, per_capita_income, urban_income, rural_income, per_capita_gdp
+        FROM city_income_yearly WHERE city_id = ? ORDER BY year ASC
+        """, (cid,))
+        income_rows = cursor.fetchall()
+        income_history = []
+        for ir in income_rows:
+            income_history.append({
+                "year": ir[0],
+                "per_capita_income": ir[1],
+                "urban_income": ir[2],
+                "rural_income": ir[3],
+                "per_capita_gdp": ir[4]
+            })
+
         # Generate estimated percentage stats for current month
         cursor.execute("SELECT listings FROM market_index WHERE city_id = ? AND date = ?", (cid, current_month))
         m_row = cursor.fetchone()
@@ -378,6 +394,7 @@ def fetch_data_payload():
             "opinions": opinions,
             "consensus": consensus,
             "consensus_institution": consensus_institution,
+            "income_history": income_history,
             "warnings": warnings_payload,
             "positive_drivers": latest_timeline.get("positive_drivers", ""),
             "negative_drivers": latest_timeline.get("negative_drivers", ""),

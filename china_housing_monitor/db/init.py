@@ -45,6 +45,7 @@ def init_db(force_reset=False):
         cursor.execute("DROP TABLE IF EXISTS storage_execution_events")
         cursor.execute("DROP TABLE IF EXISTS data_quality_log")
         cursor.execute("DROP TABLE IF EXISTS bottom_score_monthly")
+        cursor.execute("DROP TABLE IF EXISTS city_income_yearly")
     
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS cities (
@@ -232,7 +233,22 @@ def init_db(force_reset=False):
     add_column_if_not_exists(cursor, "bottom_score_monthly", "pboc_data_status", "TEXT")
     add_column_if_not_exists(cursor, "bottom_score_monthly", "city_qualification", "TEXT", "'scored'")
     add_column_if_not_exists(cursor, "bottom_score_monthly", "calculated_at", "TEXT")
-    
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS city_income_yearly (
+        city_id VARCHAR(10) NOT NULL,
+        year INTEGER NOT NULL,
+        per_capita_income INTEGER,
+        urban_income INTEGER,
+        rural_income INTEGER,
+        per_capita_gdp INTEGER,
+        source_label TEXT DEFAULT '统计局公报',
+        collected_at TEXT,
+        PRIMARY KEY (city_id, year),
+        FOREIGN KEY (city_id) REFERENCES cities(id)
+    )
+    """)
+
     conn.commit()
     
     for cid, info in CORE_CITIES.items():
@@ -314,14 +330,23 @@ def init_db(force_reset=False):
         """, (new_fz_hash, new_fz_title))
     conn.commit()
 
-    # Normalize market_index: listings=-1 should not be score eligible
+    # Normalize market_index: listings=-1 should not be treated as verified listing data.
     cursor.execute("""
     UPDATE market_index 
-    SET is_score_eligible = 0 
-    WHERE listings = -1 AND is_score_eligible = 1
+    SET is_score_eligible = 0,
+        data_status = CASE
+            WHEN data_status IN ('synthetic', 'extrapolated', 'missing') THEN data_status
+            ELSE 'missing'
+        END
+    WHERE listings = -1
+      AND (
+        is_score_eligible != 0
+        OR data_status IS NULL
+        OR data_status NOT IN ('synthetic', 'extrapolated', 'missing')
+      )
     """)
     if cursor.rowcount > 0:
-        print(f"Migration: Fixed {cursor.rowcount} records where listings=-1 but is_score_eligible=1")
+        print(f"Migration: Fixed {cursor.rowcount} records where listings=-1 had eligible or verified status")
     conn.commit()
 
     from .seed import seed_historical_data
