@@ -159,40 +159,52 @@ VALUES ('2025-03-31', 5900.0, 93.7, '央行一季度货币政策执行报告', d
 
 **为什么需要**：评分因子 S_Storage (30%) 的数据源，反映地方国企收购存量房进展。
 
-**获取方式**：
+**每周更新口径**：
+
+- 频率：每周一次，建议周一执行。
+- 窗口：抓取上一个完整自然周的收储信息（周一至周日）。
+  - 例：`run-date=2026-07-13` 时，扫描 `2026-07-06` 至 `2026-07-12`。
+- 输出：机器可读证据写入 `skills/storage-event-scanner/results/weekly/YYYY-MM-DD/`。
+- 边界：扫描命中只代表候选；导入前必须逐条打开原文，确认来源、城市、日期、阶段和去重。
+
+**推荐获取方式**：
 
 ```bash
-# 扫描单个城市
-python3 skills/storage-event-scanner/scripts/scanner.py --city sy
+# 默认扫描 run-date 前一个完整自然周
+python3 skills/storage-event-scanner/scripts/browser_use_weekly_scan.py --run-date 2026-07-13
 
-# 扫描所有城市
-python3 skills/storage-event-scanner/scripts/scanner.py --all
+# 显式指定扫描窗口
+python3 skills/storage-event-scanner/scripts/browser_use_weekly_scan.py \
+  --run-date 2026-07-13 \
+  --from-date 2026-07-06 \
+  --to-date 2026-07-12
 ```
 
-**手动搜索流程（Agent 执行）**：
+该脚本只生成证据文件，不直接写入数据库。Codex 内需要浏览器交互时，优先使用内置/应用内浏览器做原文核验；只有明确要跑 `browser-use` 路径时，才启动 headed `browser-use`。
+
+**手动搜索思路（Agent 执行）**：
 
 1. **百度搜索**：
 ```bash
-browser-use --headed open "https://www.baidu.com/s?wd={城市名}+收购存量商品房+保障房+征集通告+2026"
+{城市名} 收购存量商品房 保障房 {年份} 上周 {开始日期} 至 {结束日期}
 ```
 
-2. **搜狗微信搜索**：
+2. **政府源优先搜索**：
 ```bash
-browser-use open "https://weixin.sogou.com/weixin?type=2&query={城市名}+收购存量商品房+保障房+征集"
+{城市名} 收购存量商品房 保障性住房 征集 通告 site:gov.cn
 ```
 
-3. **提取 URL**：
+3. **官方微信/国企线索**：
 ```bash
-browser-use eval "
-JSON.stringify(Array.from(document.querySelectorAll('.result h3 a, .news-list h3 a'))
-    .slice(0, 10)
-    .map(el => ({title: el.innerText.trim().substring(0, 100), url: el.href})))
-"
+{城市名} 安居 集团 收购 存量商品房 保障房 {年份}
+{城市名} 收购存量商品房 保障房 官方微信 征集
 ```
 
-4. **去重检查**：对比 `skills/storage-event-scanner/results/weekly/existing_urls.txt`
+4. **打开原文核验**：不要只看搜索摘要，必须确认正文明确是收购存量商品房用作保障性住房。
 
-5. **阶段分类**：6个阶段及其权重
+5. **去重检查**：对比 `storage_execution_events.source_url`、同城同日期同阶段标题，以及 `event_hash`。
+
+6. **阶段分类**：6个阶段及其权重
 
 | 阶段 | 权重 | 关键词 |
 |------|------|--------|
@@ -201,11 +213,12 @@ JSON.stringify(Array.from(document.querySelectorAll('.result h3 a, .news-list h3
 | 正式招标 | 45 | 招标公告、采购 |
 | 成交公示 | 70 | 中标、成交公示 |
 | 签约收购 | 90 | 签约、签署协议 |
-| 改造完成 | 100 | 竣工、交付、配租 |
+| 改造完成/配租配售 | 100 | 竣工、交付、配租、配售 |
 
-6. **导入数据库**：
+7. **导入数据库**：
 ```bash
-python3 skills/storage-event-scanner/scripts/db_importer.py --input reviewed.json
+python3 skills/storage-event-scanner/scripts/db_importer.py skills/storage-event-scanner/results/weekly/YYYY-MM-DD/reviewed.json
+python3 skills/storage-event-scanner/scripts/db_importer.py skills/storage-event-scanner/results/weekly/YYYY-MM-DD/reviewed.json --commit
 ```
 
 **数据格式**（`storage_execution_events` 表）：
@@ -347,8 +360,8 @@ browser-use --headed open "https://www.cih-index.com/data/index/esfHouse.html"
 sleep 5
 browser-use eval "提取脚本..."  # 见 2.5 节
 
-# 4. 检查收储事件（每周一次）
-python3 skills/storage-event-scanner/scripts/scanner.py --all
+# 4. 检查收储事件（每周一次，抓取上一个完整自然周）
+python3 skills/storage-event-scanner/scripts/browser_use_weekly_scan.py --run-date YYYY-MM-DD
 
 # 5. 重新计算评分
 python3 -c "

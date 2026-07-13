@@ -54,6 +54,26 @@ browser-use --headed open "https://www.baidu.com"
 browser-use open "https://www.baidu.com"
 ```
 
+### Codex 沙箱注意事项
+
+在 Codex 默认 shell 沙箱内，`browser-use doctor` 可能在 macOS AppKit
+屏幕检测处直接 abort（退出码 134），栈顶通常是
+`browser_use/browser/profile.py::get_display_size()` 调用
+`NSScreen.mainScreen().frame()`。这不是 Chrome、百度或 CDP 问题。
+
+如果出现该现象，必须把 `browser-use` 命令用授权方式跑到沙箱外：
+
+```bash
+browser-use doctor
+browser-use --headed open "https://www.baidu.com"
+```
+
+若提示 `Session 'default' is already running with different config`，先执行：
+
+```bash
+browser-use close
+```
+
 ### 前置条件检查命令
 
 执行扫描前运行：
@@ -78,21 +98,33 @@ browser-use doctor && browser-use --headed open "https://www.baidu.com" && brows
 
 当用户说"跑本周收储扫描"时执行每周增量扫描。
 
+### 固定更新口径
+
+- **频率**：每周一次，建议周一执行。
+- **扫描窗口**：只抓取上一个完整自然周的信息，即 `run-date` 所在周的前一周周一至周日。
+  - 例：`--run-date 2026-07-13` 对应扫描 `2026-07-06` 至 `2026-07-12`。
+- **输出目录**：仍写入 `skills/storage-event-scanner/results/weekly/YYYY-MM-DD/`，其中
+  `YYYY-MM-DD` 使用本次执行日期，不使用窗口开始日期。
+- **导入边界**：扫描结果先作为证据；没有人工/代理逐条审核通过前，不写入
+  `storage_execution_events`。
+- **复用优先级**：在 Codex 内优先用内置/应用内浏览器做来源核验；只有用户明确要求
+  `browser-use` 或需要 DOM 批量抽取时，才走 headed `browser-use` 辅助脚本。
+
 ### 核心原则
 
-**手动浏览器搜索优于自动化脚本。** v2.x 的自动化 scanner.py 效果不佳（容易搜到全国综述文章而非城市具体事件），v3.0 推荐使用 `browser-use` CLI 手动逐城搜索。
+**先确定窗口，再逐城找证据。** v2.x 的自动化 scanner.py 效果不佳（容易搜到全国综述文章而非城市具体事件），v3.0 以“上周窗口 + 逐城搜索 + 打开原文核验”为准。
 
 ### 流程概览
 
 ```
 1. 准备阶段
-   ├── 确定扫描日期（通常为周一）
+   ├── 确定 run-date 和上周扫描窗口
    ├── 创建 results/weekly/YYYY-MM-DD/ 目录
    └── 加载已有 source_url 去重
 
 2. 逐城搜索（34城）
-   ├── 使用 browser-use CLI 搜索百度
-   ├── 搜索关键词："{城市名} 收购存量商品房 保障房 以旧换新 {年份}"
+   ├── 搜索百度、官方站点和搜狗微信/官方微信结果
+   ├── 搜索关键词包含：城市名 + 收购存量商品房 + 保障房 + 上周日期窗口
    ├── 检查搜索结果标题和摘要
    ├── 打开候选文章验证来源和内容
    └── 记录有效事件到 reviewed.json
@@ -114,6 +146,15 @@ mkdir -p skills/storage-event-scanner/results/weekly/YYYY-MM-DD
 # 查看已有事件（避免重复）
 sqlite3 china_monitor_db.sqlite "SELECT city_id, source_url FROM storage_execution_events;"
 ```
+
+每周执行时先明确窗口：
+
+```text
+run-date = 本次执行日期，通常是周一
+scan_window = run-date 前一个完整自然周的周一至周日
+```
+
+窗口只用于搜索和审核；输出目录仍按 `run-date` 命名。
 
 #### 2. 逐城搜索
 
@@ -148,11 +189,13 @@ browser-use eval "document.body.innerText.substring(0, 800)" 2>&1
 
 **搜索关键词优化：**
 
-| 城市类型 | 推荐关键词 |
+| 场景 | 推荐关键词 |
 |---------|-----------|
-| 一线城市 | `{城市名} 收购存量商品房 保障房 以旧换新 {年份}` |
-| 二线城市 | `{城市名} 安居 收购 存量商品房 保障房 {年份}5月 {年份}6月` |
-| 三线城市 | `{城市名} 收购存量商品房 保障房 以旧换新 {年份}` |
+| 基础逐城 | `{城市名} 收购存量商品房 保障房 {年份} 上周 {开始日期} 至 {结束日期}` |
+| 政府源优先 | `{城市名} 收购存量商品房 保障性住房 征集 通告 site:gov.cn` |
+| 国企/安居线索 | `{城市名} 安居 集团 收购 存量商品房 保障房 {年份}` |
+| 官方微信 | `{城市名} 收购存量商品房 保障房 官方微信 征集` |
+| 缺口城市复查 | `{城市名} 保障性住房 房源征集 收购 存量商品房 {年份}` |
 
 **搜索结果筛选标准：**
 
@@ -360,6 +403,33 @@ python3 skills/storage-event-scanner/scripts/scanner.py --all --run-date YYYY-MM
 ```
 
 注意：自动化扫描结果仍需人工审核，不能直接导入。
+
+## Browser-use Headed Helper
+
+当需要按 v3.0 流程用 headed browser-use 扫描百度 + 搜狗微信，但又希望减少
+截图/token 消耗时，可运行辅助脚本。该脚本只写本周证据 JSON，不导入 DB：
+
+```bash
+python3 skills/storage-event-scanner/scripts/browser_use_weekly_scan.py --run-date YYYY-MM-DD
+```
+
+默认扫描 `--run-date` 前一个完整自然周。也可以显式指定窗口：
+
+```bash
+python3 skills/storage-event-scanner/scripts/browser_use_weekly_scan.py \
+  --run-date 2026-07-13 \
+  --from-date 2026-07-06 \
+  --to-date 2026-07-12
+```
+
+输出文件：
+
+- `browser_use_scan.json`：扫描窗口、34 城百度与搜狗微信搜索结果、打开状态、候选验证结果
+- `browser_use_verified_candidates.json`：脚本层面确认最终 URL 稳定且正文命中的候选
+- `browser_use_review_notes.json`：人工审核结论和拒绝/待核原因（由执行者补充）
+
+`browser_use_verified_candidates.json` 不是 `reviewed.json`，不得直接导入。导入前仍需
+逐条确认阶段、事件日期、城市匹配、来源权威性和 DB 去重。
 
 ## Tests
 
