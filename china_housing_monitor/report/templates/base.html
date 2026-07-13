@@ -145,7 +145,7 @@
                     <span class="text-slate-400 text-[12px]">央行</span>
                 </div>
                 <div class="flex flex-wrap items-center gap-1.5 sm:gap-0 text-slate-500 text-[11px] sm:text-[12px]">
-                    <span class="footer-sys-tag inline-flex items-center px-1.5 py-0.5 rounded bg-slate-800/60 text-slate-400 sm:bg-transparent sm:p-0 sm:text-slate-500">CHM v1.0.0</span>
+                    <span class="footer-sys-tag inline-flex items-center px-1.5 py-0.5 rounded bg-slate-800/60 text-slate-400 sm:bg-transparent sm:p-0 sm:text-slate-500">CHM v1.0.2</span>
                     <span class="hidden sm:inline text-slate-700">·</span>
                     <span class="footer-sys-tag inline-flex items-center px-1.5 py-0.5 rounded bg-slate-800/60 text-slate-400 sm:bg-transparent sm:p-0 sm:text-slate-500">BSS_LOW_DATA_V1</span>
                     <span class="hidden sm:inline text-slate-700">·</span>
@@ -336,12 +336,12 @@
                         <div class="flex items-center justify-between mb-1.5">
                             <h3 class="text-white text-sm font-bold flex items-center gap-2">
                                 <span class="px-1.5 py-0.5 bg-blue-500 text-slate-950 text-[11px] font-bold rounded">Active</span>
-                                v1.0.0 开源准备 & 数据采集依赖说明
+                                v1.0.2 城市经济基本面与收储周更
                             </h3>
-                            <span class="text-slate-500 text-[12px] font-mono">2026-06-18</span>
+                            <span class="text-slate-500 text-[12px] font-mono">2026-07-13</span>
                         </div>
                         <p class="text-slate-400 text-sm leading-relaxed">
-                            正式开源版本：新增贡献指南、行为准则、GitHub Issue/PR 模板，数据来源仅保留官方数据源，新增 Powered by George Lue 品牌标识。
+                            新增城市经济基本面数据面板，并固化 34 城收储事件的上周周度扫描与证据留存流程。
                         </p>
                     </div>
 
@@ -352,6 +352,21 @@
                         </h4>
                         
                         <div class="relative pl-5 border-l border-slate-800 space-y-5">
+                            <!-- v1.0.2 -->
+                            <div class="relative">
+                                <div class="absolute -left-[25px] top-1.5 w-2 h-2 rounded-full bg-emerald-500 ring-4 ring-emerald-950"></div>
+                                <h5 class="text-slate-200 text-sm font-semibold flex items-center gap-2">
+                                    <span>v1.0.2 — 城市经济基本面与收储周更</span>
+                                    <span class="text-slate-500 text-[12px]">2026-07-13</span>
+                                </h5>
+                                <ul class="list-disc pl-4 mt-1.5 text-[13px] text-slate-400 space-y-1 leading-relaxed">
+                                    <li><strong>城市经济基本面</strong>：新增独立数据板块，展示居民人均可支配收入、人均 GDP 及其比值。</li>
+                                    <li><strong>趋势与对比可视化</strong>：使用直观对比条形图展示 2023 与 2024 年的数据，并计算同比增长百分比与方向箭头。</li>
+                                    <li><strong>自适应容错处理</strong>：设计 `city_income_yearly` 存储结构与填充，对缺乏部分统计口径的城市自动降级提示“暂无数据”。</li>
+                                    <li><strong>收储周更流程</strong>：按上一个完整自然周逐城扫描百度与搜狗微信，候选先写入 JSON 证据，审核通过前不写入数据库。</li>
+                                </ul>
+                            </div>
+
                             <!-- v1.0.0 -->
                             <div class="relative">
                                 <div class="absolute -left-[25px] top-1.5 w-2 h-2 rounded-full bg-emerald-500 ring-4 ring-emerald-950"></div>

@@ -12,14 +12,14 @@
 ## 📂 1. 项目文件组成
 
 ```
-china_housing_monitor/              ← Python 包 (v1.0.0)
+china_housing_monitor/              ← Python 包 (v1.0.2)
 ├── __init__.py                     ← 包初始化
 ├── __main__.py                     ← CLI 入口 (argparse)
 ├── config.py                       ← 常量、路径、34城定义、评分参数
 ├── crawler.py                      ← 链家爬虫 + SSL 绕过 + Smart Fallback
 ├── db/
 │   ├── init.py                     ← init_db(), 表迁移
-│   └── seed.py                     ← 历史数据播种 (NBS/交易/收储/券商共识)
+│   └── seed.py                     ← 历史数据播种 (NBS/交易/收储/券商共识/收入GDP)
 ├── scoring/
 │   ├── factors.py                  ← 评分因子: calc_s_price, storage_recency
 │   └── bottom.py                   ← compute_bottom_score, generate_warnings
@@ -65,10 +65,15 @@ chm.html                            ← 生成的 SPA 仪表盘 (gitignored)
 - 城市切换完全在浏览器内存中运行，微秒级响应
 - ECharts 地图 + ApexCharts 图表 + 动态径向仪表盘
 
+### 💹 城市经济基本面
+- `city_income_yearly` 保存 24 城 2023-2024 年居民人均可支配收入、人均 GDP 及城乡收入数据
+- 数据源为城市统计局公报；面板展示年度变化、收入/GDP 比值和缺失数据提示
+
 ### 🔍 收储事件智能扫描器
 - 智能去重：识别同一事件的不同报道，保留最权威来源
 - 来源验证：按政府官网 > 官方微信 > 国家媒体 > 地方媒体优先级
 - 6 阶段分类：政策表态 → 房源征集 → 正式招标 → 成交公示 → 签约收购 → 改造完成
+- 周度增量：按上一个完整自然周覆盖 34 城百度和搜狗微信检索，候选先留存 JSON 证据再审核入库
 
 ---
 
@@ -84,6 +89,7 @@ chm.html                            ← 生成的 SPA 仪表盘 (gitignored)
 | `bottom_score_monthly` | 预计算评分/状态/因子/解释 |
 | `professional_opinions` | 券商研报共识 |
 | `pboc_global` | 央行再贷款进度时序 |
+| `city_income_yearly` | 城市年度收入、城乡收入与人均 GDP |
 | `data_quality_log` | 数据质量审计 |
 
 ---
@@ -216,6 +222,7 @@ CHM 的数据采集目标（百度、央行官网、中指研究院）会检测�
 
 | 版本 | 日期 | 说明 |
 |------|------|------|
+| v1.0.2 | 2026-07-13 | 新增 24 城收入/GDP基本面面板；收储扫描改为上周窗口的 34 城百度/搜狗证据流程 |
 | v1.0.1 | 2026-06-18 | 评分计算顺序修复 + seed.py 收储事件同步 + AI 代理使用建议 |
 | v1.0.0 | 2026-06-18 | 开源准备 & 数据采集依赖说明：修复 schema、添加 LICENSE、清理路径、统一术语 |
 | v0.9 | 2026-06-15 | 中指数据导入、数据获取指南、34城评分更新 |
