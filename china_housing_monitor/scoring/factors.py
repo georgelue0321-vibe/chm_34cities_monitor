@@ -11,6 +11,8 @@ calculates and persists monthly scores for all cities.
 from datetime import datetime
 from ..config import CORE_CITIES, PBOC_SCORE_MAP, PBOC_STALE_CAP, PBOC_STALE_MONTHS_THRESHOLD
 
+PRICE_IMPROVEMENT_EPSILON = 0.001
+
 
 def resolve_current_month(conn, cli_month=None):
     """Resolve the current month for scoring.
@@ -129,16 +131,16 @@ def calc_s_price(resale_mom_series):
         base = 90
     elif ma3 >= 100.0 and min_last3 >= 99.8:
         base = 78
-    elif ma3 >= 99.7 and improvement > 0:
+    elif ma3 >= 99.7 and improvement > PRICE_IMPROVEMENT_EPSILON:
         base = 65
-    elif ma3 >= 99.3 and improvement > 0:
+    elif ma3 >= 99.3 and improvement > PRICE_IMPROVEMENT_EPSILON:
         base = 52
     elif ma3 >= 99.0:
         base = 40
     else:
         base = 25
 
-    if improvement > 0.2:
+    if improvement > 0.2 + PRICE_IMPROVEMENT_EPSILON:
         base += 5
     if min_last3 >= 100.0:
         base += 5
