@@ -1,5 +1,5 @@
     <!-- Header -->
-    <header class="border-b border-slate-800/60 bg-slate-950/95 sticky top-0 z-50">
+    <header class="border-b border-slate-800/60 bg-slate-950/95">
         <!-- Scrolling Banner -->
         <div class="border-b border-slate-800/40 bg-slate-900/30 py-1.5 text-sm font-medium text-slate-300 select-none">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 flex items-center">
@@ -51,8 +51,10 @@
             </div>
         </div>
 
-        <!-- Tier Navigation Bar -->
-        <div id="nav-container" onclick="toggleNavMobile(event)" class="border-t border-slate-800/60 bg-slate-950/50 cursor-pointer">
+    </header>
+
+    <!-- Tier Navigation Bar -->
+    <div id="nav-container" onclick="toggleNavMobile(event)" class="nav-sticky-bar sticky top-0 z-50 border-y border-slate-800/60 bg-slate-950/95 cursor-pointer">
             <div id="compact-nav" class="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 flex items-center gap-3 relative">
                 <div id="nav-active-city-tag" class="flex-shrink-0"></div>
                 <div class="hidden md:block w-px h-5 bg-slate-700 flex-shrink-0"></div>
@@ -101,5 +103,4 @@
                     <div id="nav-tier-3" class="flex flex-wrap gap-2"></div>
                 </div>
             </div>
-        </div>
-    </header>
+    </div>

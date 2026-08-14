@@ -132,6 +132,57 @@ function renderScoreHistoryChart(history) {
     } catch (err) { console.error("Error rendering Score History Chart:", err); }
 }
 
+let weeklyScoreChart = null;
+
+function renderWeeklyScoreChart(history) {
+    try {
+        const container = document.querySelector("#weeklyScoreChart");
+        const emptyEl = document.querySelector("#weeklyScoreEmpty");
+        const metaEl = document.querySelector("#weeklyScoreMeta");
+        if (!container) return;
+
+        const items = (history || []).filter(h => h.week_start && h.score != null);
+
+        // Update meta text
+        if (metaEl) {
+            if (items.length === 0) {
+                metaEl.innerText = "尚未记录";
+            } else {
+                const last = items[items.length - 1];
+                metaEl.innerText = `已记录 ${items.length} 周 · 最新 ${last.week_start} · ${last.score} 分`;
+            }
+        }
+
+        // Hide empty hint only when there is no data at all (1+ points still render)
+        if (items.length === 0) {
+            try { if (weeklyScoreChart) { weeklyScoreChart.destroy(); weeklyScoreChart = null; } } catch (e) {}
+            container.innerHTML = '';
+            if (emptyEl) emptyEl.classList.remove('hidden');
+            return;
+        }
+        if (emptyEl) emptyEl.classList.add('hidden');
+
+        const dates = items.map(h => h.week_start);
+        const scores = items.map(h => h.score);
+        const tc = getThemeColors();
+        var options = {
+            series: [{ name: '周度底部信号评分', data: scores }],
+            chart: { height: 200, type: 'line', toolbar: { show: false }, background: 'transparent', zoom: { enabled: false } },
+            stroke: { width: 2, curve: 'smooth' }, colors: [tc.line1],
+            labels: dates, markers: { size: 2, hover: { size: 4 } },
+            dataLabels: { enabled: false },
+            xaxis: { type: 'category', labels: { style: { colors: tc.axisLabel, fontWeight: 500, fontSize: '11px' } }, axisBorder: { show: false }, axisTicks: { show: false } },
+            yaxis: { max: 100, min: 0, labels: { style: { colors: tc.axisLabel, fontWeight: 500, fontSize: '11px' } } },
+            tooltip: { theme: tc.tooltipTheme },
+            grid: { borderColor: tc.gridBorder, strokeDashArray: 4, yaxis: { lines: { show: true } } },
+            legend: { show: false }
+        };
+        try { if (weeklyScoreChart) weeklyScoreChart.destroy(); } catch (e) {}
+        weeklyScoreChart = new ApexCharts(container, options);
+        weeklyScoreChart.render();
+    } catch (err) { console.error("Error rendering Weekly Score Chart:", err); }
+}
+
 function renderScrapedCharts(history, cityId, city) {
     try {
         const dates = history.map(h => h.date);
@@ -206,6 +257,7 @@ function rerenderChartsForTheme() {
     try { renderNbsIndexChart(city.price_index_history); } catch (e) {}
     try { renderTransactionChart(city.transaction_history, city); } catch (e) {}
     try { renderScoreHistoryChart(city.score_history); } catch (e) {}
+    try { renderWeeklyScoreChart(city.weekly_score_history || []); } catch (e) {}
     try { renderScrapedCharts(city.market_history, cityId, city); } catch (e) {}
     try { rerenderMapForTheme(); } catch (e) {}
 }

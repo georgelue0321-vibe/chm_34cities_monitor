@@ -204,8 +204,11 @@ function positionTooltip(targetEl) {
         tooltip.style.left = '50%';
     } else {
         tooltip.style.width = '360px';
+        const halfWidth = 180;
         const center = rect.left + rect.width / 2;
-        tooltip.style.left = center + 'px';
+        const minLeft = halfWidth + 12;
+        const maxLeft = vw - halfWidth - 12;
+        tooltip.style.left = Math.max(minLeft, Math.min(maxLeft, center)) + 'px';
     }
 
     const showBelow = rect.top < 200;

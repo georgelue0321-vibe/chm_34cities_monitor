@@ -16,7 +16,7 @@ from . import __version__
 from .config import DB_PATH, REPORT_PATH
 from .db.init import init_db
 from .crawler import update_all_cities_market_data
-from .scoring.factors import compute_and_store_all_scores
+from .scoring.factors import compute_and_store_all_scores, compute_and_store_weekly_scores
 from .report.generator import generate_html_report
 
 
@@ -65,6 +65,7 @@ def main():
     conn = sqlite3.connect(DB_PATH)
     try:
         compute_and_store_all_scores(conn)
+        compute_and_store_weekly_scores(conn)
     finally:
         conn.close()
 

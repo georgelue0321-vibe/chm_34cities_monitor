@@ -7,7 +7,7 @@ import sqlite3
 import json
 from datetime import datetime, timedelta
 
-from ..config import DB_PATH, CORE_CITIES, BSS_LOW_DATA_V1
+from ..config import DB_PATH, CORE_CITIES, BSS_LOW_DATA_V1, WEEKLY_SCORE_HISTORY_START
 from ..scoring.factors import resolve_current_month, calc_pboc_freshness
 from ..scoring.bottom import decide_city_status_timeline, generate_warnings
 from .charts import (
@@ -261,6 +261,15 @@ def fetch_data_payload():
             consensus = "暂无券商研报覆盖，建议关注当地住建局及统计局官方数据。"
             consensus_institution = ""
 
+        # Weekly score history (recorded from current week onward)
+        cursor.execute("""
+            SELECT week_start, score, data_source FROM weekly_bottom_score
+            WHERE city_id = ? AND week_start >= ? ORDER BY week_start ASC
+        """, (cid, WEEKLY_SCORE_HISTORY_START))
+        weekly_score_history = [
+            {"week_start": r[0], "score": r[1], "source": r[2]} for r in cursor.fetchall()
+        ]
+
         # Income & GDP data
         cursor.execute("""
         SELECT year, per_capita_income, urban_income, rural_income, per_capita_gdp
@@ -391,6 +400,7 @@ def fetch_data_payload():
             "transaction_history": transaction_history,
             "storage_execution_history": storage_execution_history,
             "score_history": [{"date": x["date"], "score": x["score"]} for x in score_timeline],
+            "weekly_score_history": weekly_score_history,
             "opinions": opinions,
             "consensus": consensus,
             "consensus_institution": consensus_institution,

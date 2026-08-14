@@ -235,6 +235,18 @@ def init_db(force_reset=False):
     add_column_if_not_exists(cursor, "bottom_score_monthly", "calculated_at", "TEXT")
 
     cursor.execute("""
+    CREATE TABLE IF NOT EXISTS weekly_bottom_score (
+        city_id TEXT NOT NULL,
+        week_start TEXT NOT NULL,
+        score REAL,
+        data_source TEXT,
+        calculated_at TEXT,
+        PRIMARY KEY (city_id, week_start),
+        FOREIGN KEY (city_id) REFERENCES cities(id)
+    )
+    """)
+
+    cursor.execute("""
     CREATE TABLE IF NOT EXISTS city_income_yearly (
         city_id VARCHAR(10) NOT NULL,
         year INTEGER NOT NULL,

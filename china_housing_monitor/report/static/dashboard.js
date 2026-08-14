@@ -325,6 +325,7 @@ function renderCityDashboard(cityId) {
     try { renderNbsIndexChart(city.price_index_history); } catch (e) { console.error("Error rendering NBS Index Chart:", e); }
     try { renderTransactionChart(city.transaction_history, city); } catch (e) { console.error("Error rendering Transaction Chart:", e); }
     try { renderScoreHistoryChart(city.score_history); } catch (e) { console.error("Error rendering Score History Chart:", e); }
+    try { renderWeeklyScoreChart(city.weekly_score_history || []); } catch (e) { console.error("Error rendering Weekly Score Chart:", e); }
     try { renderScrapedCharts(city.market_history, cityId, city); } catch (e) { console.error("Error rendering Scraped Charts:", e); }
 }
 

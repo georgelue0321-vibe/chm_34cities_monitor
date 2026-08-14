@@ -87,6 +87,9 @@ PBOC_SCORE_MAP = [
 PBOC_STALE_CAP = 30
 PBOC_STALE_MONTHS_THRESHOLD = 6
 
+# Weekly scores only became observable from the first collection week.
+WEEKLY_SCORE_HISTORY_START = "2026-08-10"
+
 DATA_STATUS_LABELS = {
     "official": "官方发布",
     "scraped": "爬取",

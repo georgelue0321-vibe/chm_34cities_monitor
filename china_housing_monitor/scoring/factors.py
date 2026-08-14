@@ -8,8 +8,14 @@ Contains core functions for computing individual scoring factors:
 Also includes the main compute_and_store_all_scores() function that
 calculates and persists monthly scores for all cities.
 """
-from datetime import datetime
-from ..config import CORE_CITIES, PBOC_SCORE_MAP, PBOC_STALE_CAP, PBOC_STALE_MONTHS_THRESHOLD
+from datetime import datetime, timedelta
+from ..config import (
+    CORE_CITIES,
+    PBOC_SCORE_MAP,
+    PBOC_STALE_CAP,
+    PBOC_STALE_MONTHS_THRESHOLD,
+    WEEKLY_SCORE_HISTORY_START,
+)
 
 PRICE_IMPROVEMENT_EPSILON = 0.001
 
@@ -387,5 +393,75 @@ def compute_and_store_all_scores(conn):
                   'low_data', 'BSS_LOW_DATA_V1', '0.60*S_Price + 0.30*S_Storage + 0.10*S_PBOC',
                   pboc_score, pboc_pct, pboc_fresh["stale_months"], 1 if pboc_fresh["is_stale"] else 0, pboc_fresh["data_status"],
                   city_qualification, datetime.now().isoformat()))
+
+    conn.commit()
+
+
+def compute_and_store_weekly_scores(conn):
+    """Compute and store weekly Bottom Signal Scores (Monday-week grain).
+
+    Strategy: carry over latest monthly BSS factors. If a city has new
+    storage events within the current ISO week, recompute the storage
+    factor and recompute the weekly score.
+    """
+    cursor = conn.cursor()
+    week_start = (datetime.now() - timedelta(days=datetime.now().weekday())).strftime("%Y-%m-%d")
+
+    weekly_stage_scores = {
+        "房源征集": 25,
+        "正式招标": 45,
+        "成交公示": 70,
+        "签约收购": 90,
+        "改造完成/配租配售": 100,
+    }
+
+    cursor.execute(
+        "DELETE FROM weekly_bottom_score WHERE week_start < ?",
+        (WEEKLY_SCORE_HISTORY_START,),
+    )
+
+    for cid in CORE_CITIES:
+        cursor.execute("""
+            SELECT score_final, factor_price, factor_policy, pboc_score
+            FROM bottom_score_monthly
+            WHERE city_id = ? ORDER BY month DESC LIMIT 1
+        """, (cid,))
+        row = cursor.fetchone()
+        if not row:
+            continue
+        _, price_score, monthly_storage, pboc_score = row
+
+        cursor.execute("""
+            SELECT event_stage, event_date, is_score_eligible
+            FROM storage_execution_events
+            WHERE city_id = ? AND substr(event_date, 1, 10) >= ?
+              AND substr(event_date, 1, 10) < date(?, '+7 days')
+        """, (cid, week_start, week_start))
+        events = cursor.fetchall()
+
+        weekly_storage = 0
+        for ev_stage, ev_date, ev_eligible in events:
+            if ev_eligible != 1:
+                continue
+            base = weekly_stage_scores.get(ev_stage, 0)
+            if base == 0:
+                continue
+            weighted = base * storage_recency_multiplier(ev_date, week_start)
+            if weighted > weekly_storage:
+                weekly_storage = weighted
+        weekly_storage = int(weekly_storage)
+
+        final_storage = max(monthly_storage or 0, weekly_storage)
+        weekly_score = round(
+            min(100.0, max(0.0, 0.60 * price_score + 0.30 * final_storage + 0.10 * pboc_score)),
+            2,
+        )
+        data_source = "weekly_refresh" if events else "monthly_carryover"
+
+        cursor.execute("""
+            INSERT OR REPLACE INTO weekly_bottom_score
+              (city_id, week_start, score, data_source, calculated_at)
+            VALUES (?, ?, ?, ?, ?)
+        """, (cid, week_start, weekly_score, data_source, datetime.now().isoformat()))
 
     conn.commit()
