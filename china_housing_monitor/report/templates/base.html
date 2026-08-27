@@ -47,6 +47,7 @@
     <style>
 {{CSS_CONTENT}}
     </style>
+<!-- CHM_EXTENSION_STYLES -->
 </head>
 <body class="font-sans text-slate-350 min-h-screen">
 
@@ -197,6 +198,25 @@
 {{JS_ONBOARDING}}
     </script>
     <script>
+        window.CHMExtensionHost = window.CHMExtensionHost || {
+            extension: null,
+            register(extension) {
+                this.extension = extension || null;
+            },
+            init(cityId) {
+                if (typeof this.extension?.init === 'function') this.extension.init(cityId);
+            },
+            onCityChange(cityId) {
+                if (typeof this.extension?.onCityChange === 'function') this.extension.onCityChange(cityId);
+            },
+            getOnboardingStep(cityId) {
+                if (typeof this.extension?.getOnboardingStep !== 'function') return null;
+                return this.extension.getOnboardingStep(cityId);
+            }
+        };
+    </script>
+<!-- CHM_EXTENSION_SCRIPTS -->
+    <script>
         window.addEventListener('DOMContentLoaded', () => {
             const db = window.MONITOR_DB;
             document.getElementById('footerLastUpdated').innerText = db.last_updated;
@@ -236,12 +256,11 @@
             renderRankings(db.rankings, defaultCity);
             renderCityDashboard(defaultCity);
             renderIncomeBlock(defaultCity);
+            CHMExtensionHost.init(defaultCity);
 
-            // Start onboarding for first-time users
-            if (!isOnboardingDone()) {
-                setTimeout(() => {
-                    startOnboarding();
-                }, 1000);
+            // Route the versioned guide after optional extensions have initialized.
+            if (typeof startOnboardingIfNeeded === 'function') {
+                setTimeout(() => startOnboardingIfNeeded(), 1000);
             }
 
             // Landscape hint for mobile

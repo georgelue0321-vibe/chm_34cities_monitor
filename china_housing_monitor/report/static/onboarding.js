@@ -1,4 +1,6 @@
 const STORAGE_KEY = 'chm_onboarding_done';
+const VERSION_KEY = 'chm_onboarding_version';
+const ONBOARDING_VERSION = '2';
 
 const STEPS = [
     {
@@ -54,20 +56,45 @@ const STEPS = [
 ];
 
 let currentStep = 0;
+let activeSteps = STEPS;
 let currentTargetId = null;
 let currentStepConfig = null;
 let scrollRAF = null;
+let onboardingPreviousFocus = null;
 
 function isOnboardingDone() {
-    return localStorage.getItem(STORAGE_KEY) === '1';
+    return Number(localStorage.getItem(VERSION_KEY) || 0) >= Number(ONBOARDING_VERSION);
 }
 
 function markOnboardingDone() {
     localStorage.setItem(STORAGE_KEY, '1');
+    localStorage.setItem(VERSION_KEY, ONBOARDING_VERSION);
 }
 
-function startOnboarding() {
-    if (isOnboardingDone()) return;
+function onboardingMode() {
+    if (Number(localStorage.getItem(VERSION_KEY) || 0) >= Number(ONBOARDING_VERSION)) return 'none';
+    return localStorage.getItem(STORAGE_KEY) === '1' ? 'feature' : 'full';
+}
+
+function getExtensionOnboardingStep() {
+    const host = window.CHMExtensionHost;
+    if (!host || typeof host.getOnboardingStep !== 'function') return null;
+    const cityId = localStorage.getItem('selected_city') || 'cd';
+    const step = host.getOnboardingStep(cityId);
+    if (!step || typeof step !== 'object' || !step.title || !step.content) return null;
+    return step;
+}
+
+function startOnboarding(mode) {
+    const selectedMode = mode || onboardingMode();
+    if (selectedMode === 'none') return;
+    const extensionStep = getExtensionOnboardingStep();
+    if (selectedMode === 'feature' && !extensionStep) {
+        markOnboardingDone();
+        return;
+    }
+    activeSteps = selectedMode === 'feature' ? [extensionStep] : extensionStep ? [...STEPS, extensionStep] : STEPS;
+    onboardingPreviousFocus = document.activeElement;
     currentStep = 0;
     createOverlay();
     renderStep(currentStep);
@@ -80,12 +107,12 @@ function createOverlay() {
 
     const overlay = document.createElement('div');
     overlay.id = 'onboarding-overlay';
-    overlay.innerHTML = `<div id="onboarding-tooltip" class="onboarding-tooltip onboarding-center" role="dialog" aria-label="使用指引"><div id="onboarding-tooltip-inner"></div></div>`;
+    overlay.innerHTML = `<div id="onboarding-tooltip" class="onboarding-tooltip onboarding-center" role="dialog" aria-modal="true" aria-label="使用指引" tabindex="-1"><div id="onboarding-tooltip-inner"></div></div>`;
     document.body.appendChild(overlay);
 }
 
 function renderStep(index) {
-    const step = STEPS[index];
+    const step = activeSteps[index];
     const tooltip = document.getElementById('onboarding-tooltip');
     const inner = document.getElementById('onboarding-tooltip-inner');
 
@@ -104,7 +131,7 @@ function renderStep(index) {
 
     inner.innerHTML = `
         <div class="onboarding-header">
-            <span class="onboarding-step-badge">${index + 1}/${STEPS.length}</span>
+            <span class="onboarding-step-badge">${index + 1}/${activeSteps.length}</span>
             <h3 class="onboarding-title">${step.title}</h3>
             <p class="onboarding-subtitle">${step.subtitle}</p>
         </div>
@@ -116,12 +143,13 @@ function renderStep(index) {
             <button onclick="skipOnboarding()" class="onboarding-skip" aria-label="跳过指引">跳过指引</button>
             <div class="onboarding-nav">
                 ${index > 0 ? `<button onclick="prevStep()" class="onboarding-prev" aria-label="上一步"><i class="fas fa-chevron-left"></i></button>` : ''}
-                <button onclick="nextStep()" class="onboarding-next" aria-label="${index === STEPS.length - 1 ? '开始使用' : '下一步'}">
-                    ${index === STEPS.length - 1 ? '开始使用' : '下一步'} <i class="fas fa-chevron-right"></i>
+                <button onclick="activateCurrentStep()" class="onboarding-next" aria-label="${step.actionLabel || (index === activeSteps.length - 1 ? '开始使用' : '下一步')}">
+                    ${step.actionLabel || (index === activeSteps.length - 1 ? '开始使用' : '下一步')} <i class="fas fa-chevron-right"></i>
                 </button>
             </div>
         </div>
     `;
+    requestAnimationFrame(() => inner.querySelector('.onboarding-next')?.focus());
 
     document.querySelectorAll('.onboarding-highlighted').forEach(el => el.classList.remove('onboarding-highlighted'));
 
@@ -224,7 +252,7 @@ function positionTooltip(targetEl) {
 }
 
 function nextStep() {
-    if (currentStep < STEPS.length - 1) {
+    if (currentStep < activeSteps.length - 1) {
         currentStep++;
         renderStep(currentStep);
     } else {
@@ -254,14 +282,42 @@ function completeOnboarding() {
         overlay.classList.add('onboarding-exit');
         setTimeout(() => overlay.remove(), 300);
     }
+    const previousFocus = onboardingPreviousFocus;
+    onboardingPreviousFocus = null;
+    if (previousFocus?.focus) previousFocus.focus();
+}
+
+function activateCurrentStep() {
+    const action = currentStepConfig?.onActivate;
+    if (typeof action !== 'function') {
+        nextStep();
+        return;
+    }
+    completeOnboarding();
+    setTimeout(() => action(), 320);
+}
+
+function startOnboardingIfNeeded() {
+    const mode = onboardingMode();
+    if (mode !== 'none') startOnboarding(mode);
 }
 
 function handleKeyboard(e) {
+    if ((e.key === 'Enter' || e.key === ' ') && e.target?.closest?.('button')) return;
+    if (e.key === 'Tab') {
+        const focusable = document.querySelectorAll('#onboarding-tooltip button:not([disabled])');
+        if (!focusable.length) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+        return;
+    }
     switch (e.key) {
         case 'Enter':
         case ' ':
             e.preventDefault();
-            nextStep();
+            activateCurrentStep();
             break;
         case 'Escape':
             e.preventDefault();
@@ -269,7 +325,7 @@ function handleKeyboard(e) {
             break;
         case 'ArrowRight':
             e.preventDefault();
-            nextStep();
+            activateCurrentStep();
             break;
         case 'ArrowLeft':
             e.preventDefault();
@@ -283,3 +339,5 @@ window.isOnboardingDone = isOnboardingDone;
 window.nextStep = nextStep;
 window.prevStep = prevStep;
 window.skipOnboarding = skipOnboarding;
+window.startOnboardingIfNeeded = startOnboardingIfNeeded;
+window.activateCurrentStep = activateCurrentStep;
