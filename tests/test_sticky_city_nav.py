@@ -8,6 +8,13 @@ HEADER_PATH = (
     / "templates"
     / "header.html"
 )
+STYLE_PATH = (
+    Path(__file__).resolve().parents[1]
+    / "china_housing_monitor"
+    / "report"
+    / "static"
+    / "style.css"
+)
 
 
 def test_city_nav_is_independent_sticky_region():
@@ -20,6 +27,14 @@ def test_city_nav_is_independent_sticky_region():
     assert "sticky top-0 z-50" not in header_section
     assert "sticky top-0 z-50" in nav_section
     assert html.index("</header>") < nav_start
+
+
+def test_expanded_city_nav_scrolls_only_when_content_overflows():
+    css = STYLE_PATH.read_text(encoding="utf-8")
+
+    assert "max-height: calc(100dvh - 3.75rem);" in css
+    assert "overflow-y: auto;" in css
+    assert "overscroll-behavior-y: contain;" in css
 
 
 if __name__ == "__main__":

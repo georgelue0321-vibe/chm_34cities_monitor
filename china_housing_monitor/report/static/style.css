@@ -323,6 +323,10 @@ a:focus-visible {
 }
 #nav-container.is-expanded #expanded-nav {
     max-height: 500px;
+    max-height: calc(100dvh - 3.75rem);
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
     opacity: 1;
     padding-top: 0.75rem;
     padding-bottom: 1rem;
