@@ -203,12 +203,12 @@
 }
 
 /* Light mode map trigger tag */
-[data-theme="light"] #map-trigger-tag {
+[data-theme="light"] :is(#map-trigger-tag, #sentiment-research-report) {
     background: rgba(255, 255, 255, 0.95);
     border-color: #e2e8f0;
     color: #334155;
 }
-[data-theme="light"] #map-trigger-tag:hover {
+[data-theme="light"] :is(#map-trigger-tag, #sentiment-research-report):hover {
     background: #f1f5f9;
     border-color: #cbd5e1;
 }
@@ -398,11 +398,11 @@ a:focus-visible {
     white-space: nowrap;
 }
 
-#map-trigger-tag {
+:is(#map-trigger-tag, #sentiment-research-report) {
     box-shadow: 4px 0 15px rgba(59, 130, 246, 0.15);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
-#map-trigger-tag:hover {
+:is(#map-trigger-tag, #sentiment-research-report):hover {
     box-shadow: 6px 0 25px rgba(59, 130, 246, 0.35);
 }
 

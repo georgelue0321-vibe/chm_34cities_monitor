@@ -93,16 +93,25 @@
         </div>
     </div>
 
-    <!-- Floating Entry Tag -->
+    <!-- Shared floating shortcuts keep research and map access away from the feedback drawer. -->
+    <nav id="chm-floating-entry-rail" aria-label="CHM 快捷入口" class="fixed left-0 top-1/2 -translate-y-1/2 z-[60] flex flex-col gap-3">
     <div id="map-trigger-tag" onclick="openMapDrawer(false)" role="button" tabindex="0" aria-label="打开全国底部信号地图"
          onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openMapDrawer(false)}"
-         class="fixed left-0 top-1/2 -translate-y-1/2 z-[60] bg-slate-900/95 hover:bg-slate-800 border-r border-y border-slate-600 text-white rounded-r-xl px-3 py-5 cursor-pointer flex flex-col items-center gap-2.5 shadow-lg select-none group">
+         class="bg-slate-900/95 hover:bg-slate-800 border-r border-y border-slate-600 text-white rounded-r-xl px-3 py-5 cursor-pointer flex flex-col items-center gap-2.5 shadow-lg select-none group">
         <i class="fas fa-map-marked-alt text-blue-400 group-hover:scale-110 transition-transform text-sm"></i>
         <span class="text-[12px] font-bold tracking-wider writing-mode-vertical uppercase text-slate-300">全国地图</span>
         <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse shadow-[0_0_6px_rgba(59,130,246,0.8)]"></span>
     </div>
 
     <!-- Toast Notification (Accessible) -->
+    <a id="sentiment-research-report" href="https://opc-mind.top/blog/chm-sentiment-analysis-2026-09-13/" target="_blank" rel="noopener noreferrer" aria-label="在新标签页阅读首期城市观察哨调研报告"
+       class="bg-slate-900/95 hover:bg-slate-800 border-r border-y border-slate-600 text-white rounded-r-xl px-3 py-5 cursor-pointer flex flex-col items-center gap-2.5 shadow-lg select-none group">
+        <i class="fas fa-chart-line text-blue-400 group-hover:scale-110 transition-transform text-sm"></i>
+        <span class="text-[12px] font-bold tracking-wider writing-mode-vertical uppercase text-slate-300">首期调研报告</span>
+        <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse shadow-[0_0_6px_rgba(59,130,246,0.8)]"></span>
+    </a>
+    </nav>
+
     <div id="toast-container" class="fixed top-24 left-1/2 -translate-x-1/2 z-[150] pointer-events-none transition-all duration-300 transform -translate-y-4 opacity-0 flex flex-col items-center" role="status" aria-live="polite">
         <div class="px-5 py-3 bg-slate-800/95 border border-slate-600 backdrop-blur-md rounded-2xl text-sm font-semibold text-white shadow-2xl flex items-center gap-2.5">
             <i class="fas fa-check-circle text-emerald-400 text-sm"></i>

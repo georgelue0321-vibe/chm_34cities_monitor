@@ -21,6 +21,27 @@ class NavigationTemplateTest(unittest.TestCase):
         self.assertIn("getOnboardingStep", onboarding)
         self.assertRegex(onboarding, r"typeof\s+host\.getOnboardingStep\s*!==\s*['\"]function['\"]")
 
+    def test_left_floating_research_entry_is_shown_in_every_new_feature_onboarding(self):
+        root = Path("china_housing_monitor/report")
+        content = (root / "templates/base.html").read_text(encoding="utf-8")
+        onboarding = (root / "static/onboarding.js").read_text(encoding="utf-8")
+
+        entry_id = 'id="sentiment-research-report"'
+        self.assertIn(entry_id, content)
+        self.assertIn('id="chm-floating-entry-rail"', content)
+        self.assertIn('fixed left-0 top-1/2', content)
+        self.assertLess(content.index('id="map-trigger-tag"'), content.index(entry_id))
+        self.assertIn('rounded-r-xl', content[content.index(entry_id):])
+        self.assertIn('https://opc-mind.top/blog/chm-sentiment-analysis-2026-09-13/', content)
+        self.assertIn('首期城市观察哨调研报告', content)
+        self.assertIn("title: '首期城市观察哨调研报告'", onboarding)
+        self.assertIn('不定期整理城市观察过程中发现的有趣数据', onboarding)
+        self.assertNotIn('右侧腰线', onboarding)
+        self.assertIn("highlight: 'sentiment-research-report'", onboarding)
+        self.assertIn("const ONBOARDING_VERSION = '5';", onboarding)
+        self.assertIn('const FEATURE_STEPS = [RESEARCH_REPORT_STEP];', onboarding)
+        self.assertRegex(onboarding, r"activeSteps\s*=\s*selectedMode\s*===\s*'feature'[\s\S]*FEATURE_STEPS[\s\S]*extensionSteps")
+
 
 if __name__ == "__main__":
     unittest.main()

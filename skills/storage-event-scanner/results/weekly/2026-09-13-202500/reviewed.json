@@ -1,0 +1,25 @@
+[
+  {
+    "approved": true,
+    "city_id": "sh",
+    "district": "普陀区",
+    "event_date": "2026-09-08",
+    "event_stage": "签约收购",
+    "title": "普陀完成“住房收购置换”，市民卖房有了新选择",
+    "details": "9月8日上午，许国成夫妇与普陀区保障房公司工作人员一同来到普陀区房地产交易中心，办理最后的过户手续。",
+    "buyer_entity": "上海市普陀区保障性住房有限公司",
+    "units_acquired": 1,
+    "area_sqm_acquired": 53,
+    "funding_type": "房票监管账户（未披露再贷款使用）",
+    "source_url": "https://www.shpt.gov.cn/yaowen/20260909/972838.html",
+    "source_reliability": 95,
+    "confidence_score": 95,
+    "data_status": "official",
+    "is_score_eligible": 1,
+    "publication_date": "2026-09-09",
+    "accessed_at": "2026-09-13",
+    "verification_status": "verified",
+    "quote_locator": "正文办理最后过户手续段",
+    "methodology_note": "9月8日完成过户；8月下旬签约日期不详。尚未改造出租，阶段保留签约收购，不升级为改造完成。"
+  }
+]
