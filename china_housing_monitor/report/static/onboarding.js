@@ -3,9 +3,9 @@ const VERSION_KEY = 'chm_onboarding_version';
 const ONBOARDING_VERSION = '5';
 
 const RESEARCH_REPORT_STEP = {
-    title: '首期城市观察哨调研报告',
+    title: '城市观察哨调研报告',
     subtitle: 'CHM User Research',
-    content: '新增了<strong>首期城市观察哨调研报告</strong>。后续会不定期整理城市观察过程中发现的有趣数据，供你了解用户看房体感与关注者行动计划；内容仅供市场观察，不构成购房建议。',
+    content: '点击这里阅读<strong>最新一期城市观察哨调研报告</strong>，也可在文章中查看往期报告。后续会不定期整理城市观察过程中发现的有趣数据，供你了解用户看房体感与关注者行动计划；内容仅供市场观察，不构成购房建议。',
     highlight: 'sentiment-research-report',
     position: 'top'
 };
